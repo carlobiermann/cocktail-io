@@ -1,4 +1,4 @@
-## COCKTAIL IO 
+## COCKTAIL I/O 
 
 A system that reads camera and sensor inputs from a Raspberry Pi 4 B and an Arduino.
 Both devices will be connected via I2C and will provide data inputs for a neural network. 
