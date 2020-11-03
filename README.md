@@ -1,5 +1,7 @@
 ## COCKTAIL I/O 
 
+DISCLAIMER: This repository is part of an ongoing semester group project at the HTW Berlin.
+
 A system that reads camera and sensor inputs from a Raspberry Pi 4 B and an Arduino.
 Both devices will be connected via I2C and will provide data inputs for a neural network. 
 
