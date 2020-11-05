@@ -1,35 +1,25 @@
-/*
+#include <Wire.h>
 
-This code aims to save the state of an LED in order to turn it on and off with the press of a button.
-It is based on the example code "Debounce":   http://www.arduino.cc/en/Tutorial/Debounce
+#define addr 0x05
 
-The code needs a debouncing routine in order to counteract the issue of integrating a physical push button, which 
-by nature bounces very quickly between HIGH and LOW states when pressed.
+const int buttonPin = 1;  
 
-millis() --> Returns the number of milliseconds passed since the Arduino board began running the current program.
-
-This code will be used to start and stop a program/loop/function on a Raspberry Pi 4 (RPI) with the press of a button from
-an Arduino. Arduino and RPI will be connected via I2C.
-
-*/
-
-
-// INIT
-const int buttonPin = 1;   
-const int ledPin = LED_BUILTIN;      
-
-int ledState = HIGH;         
+int ledState = HIGH;
 int buttonState;             
 int lastButtonState = LOW;   
 
 unsigned long lastDebounceTime = 0;  
-unsigned long debounceDelay = 50;    
+unsigned long debounceDelay = 50;  
 
 void setup() {
   pinMode(buttonPin, INPUT);
-  pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, ledState);
+  Serial.begin(9600);
+  Wire.begin(addr);
+
+  Wire.onReceive(rxData);
+  Wire.onRequest(txData);
 }
+
 
 void loop() {
   int reading = digitalRead(buttonPin);
@@ -42,12 +32,18 @@ void loop() {
       buttonState = reading;
       if (buttonState == HIGH) {
         ledState = !ledState;
-        // INSERT FUNCTION TO SEND ledState TO VIA I2C RPI HERE  
-        Serial.print(ledState); 
-        // END INSERT
       }
     }
   }
-  digitalWrite(ledPin, ledState);
   lastButtonState = reading;
+}
+
+void rxData(int byteCount) {
+  while (Wire.available()) {
+  // do nothing
+  }
+}
+
+void txData() {
+  Wire.write(ledState);
 }
