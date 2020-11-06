@@ -22,15 +22,38 @@ class neuralNetwork:
         #first starting weights, -0.5 till 0.5, matrices
         #self.wih = (np.random.rand(self.inodes,self.hnodes) - 0.5) - easy, but not normal distribution in dependency of number of nodes
         #self.who = (np.random.rand(self.hnodes,self.onodes) - 0.5) - easy, but not normal distribution in dependency of number of nodes
-        self.wih np.random.normal(0.0, pow(self.hnodes, -0.5), (self.hnodes, self.inodes))
-        self.who np.random.normal(0.0, pow(self.onodes, -0.5), (self.onodes, self.hnodes))
+        self.wih = np.random.normal(0.0, pow(self.hnodes, -0.5), (self.hnodes, self.inodes))
+        self.who = np.random.normal(0.0, pow(self.onodes, -0.5), (self.onodes, self.hnodes))
 
         #sigmoid function called "activation function" in NN-context
         self.activation_function = lambda x: scipy.special.expit(x)
         pass
 
     #training
-    def train():
+    def train(self, inputs_list, targets_list):
+        #converting to 2D array
+        inputs = np.array(inputs_list, ndmin=2).T
+        targets = np.array(targets_list, ndmin=2).T
+        
+        #signals in the hidden layer
+        hidden_inputs = np.dot(self.wih, inputs)
+        #signals emerging from hidden layer
+        hidden_outputs = self.activation_function(hidden_inputs)
+        #signals in the output layer
+        final_inputs = np.dot(self.who, hidden_outputs)
+        #signals emerging from output layer
+        final_outputs = self.activation_function(final_inputs)
+
+        #error from target and input -> weigths between hidden layer and output layer
+        output_errors = targets - final_inputs
+        #error from output_errors, split by weights, recombined at hidden nodes-> weigths between input and hidden layer 
+        hidden_errors = np.dot(self.who.T, output_errors)
+
+        #update the weights of links between hidden and output layer
+        self.who += self.lr * np.dot((output_errors * final_outputs * (1.0 - final_outputs)), np.transpose(hidden_outputs))
+        #update the weights of links between hidden and output layer
+        self.wih += self.lr * np.dot((hidden_errors * hidden_outputs * (1.0 - hidden_outputs)), np.transpose(inputs))
+
         pass
 
     #query
@@ -40,4 +63,12 @@ class neuralNetwork:
 
         #signals in the hidden layer
         hidden_inputs = np.dot(self.wih, inputs)
+        #signals emerging from hidden layer
+        hidden_outputs = self.activation_function(hidden_inputs)
+        #signals in the output layer
+        final_inputs = np.dot(self.who, hidden_outputs)
+        #signals emerging from output layer
+        final_outputs = self.activation_function(final_inputs)
+
+        return final_inputs
         pass 

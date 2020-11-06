@@ -13,3 +13,5 @@ learning_rate  = 0.3
 
 n = nn.neuralNetwork(input_nodes,hidden_nodes,output_nodes,learning_rate)
 print("safe")
+
+print(n.query([1.0, 0.5, -1.5]))
