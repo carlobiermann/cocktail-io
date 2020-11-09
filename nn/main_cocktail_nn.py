@@ -8,59 +8,65 @@ input_nodes = 784
 hidden_nodes = 100
 output_nodes = 10
 learning_rate  = 0.3
+training_epoch = 1
 
-path_to_trainingsdata = "mnist_dataset/mnist_train_100.csv"
+path_to_trainingsdata = "mnist_dataset\mnist_train_100.csv"
+path_to_debugdata = "mnist_dataset\mnist_test_10.csv"
 
 ##########################################################
 
 import body_cocktail_nn as nn
 import numpy as np 
+import os
 
-class nninstall:
-
+class cocktailapp:
+    
     #init
-    def __init__(self, input_nodes, hidden_nodes, output_nodes, learning_rate, path_to_trainingsdata):
+    def __init__(self, input_nodes, hidden_nodes, output_nodes, learning_rate, path_to_trainingsdata, training_epoch, path_to_debugdata):
         #installing new nn
-        global n
-        n = nn.neuralNetwork(input_nodes,hidden_nodes,output_nodes,learning_rate)
+        self.n = nn.neuralNetwork(input_nodes,hidden_nodes,output_nodes,learning_rate)
         
+        self.script_dir = os.path.dirname(__file__)
+        self.int_data_path = os.path.join(self.script_dir, path_to_trainingsdata)
+        self.path_to_debugdata = os.path.join(self.script_dir, path_to_debugdata)
 
         #variables 
-        self.int_data_path = path_to_trainingsdata
         self.oonodes = output_nodes
+        self.training_epoch = training_epoch
 
         #says done, debugging
         print("Put up Neuronal Net Body...") 
         pass 
-    
+
+        #TO-DO: socket Server
+
     #train new nn with data
     def firsttrain(self):
         #load the nn training data
         self.training_data_file = open(self.int_data_path, "r")
         self.training_data_list = self.training_data_file.readlines()
         self.training_data_file.close()
+        print(len(self.training_data_list),"records in training files")
 
-        #loop for every record
-        for record in self.training_data_list:
-            print("in loop!")
-            #format record
-            self.all_values = record.split(',')
-            #scale and shift the inputs
-            self.inputs = (np.asfarray(self.all_values[1:]) / 255.0 * 0.99) + 0.01
-            #create the target output values (all 0.01, expect the desired label which is 0.99)
-            self.targets = np.zeros(self.oonodes) + 0.01
-            #all_values[0] ist target label for this record
-            self.targets[int(self.all_values[0])] = 0.99
-            n.train(self.inputs, self.targets)
+        #how often trainingdata were used
+        for e in range(self.training_epoch):
+            #loop for every record
+            for record in self.training_data_list:
+                print("in loop!")
+                #format record
+                self.all_values = record.split(',')
+                #scale and shift the inputs
+                self.inputs = (np.asfarray(self.all_values[1:]) / 255.0 * 0.99) + 0.01
+                #create the target output values (all 0.01, expect the desired label which is 0.99)
+                self.targets = np.zeros(self.oonodes) + 0.01
+                #all_values[0] ist target label for this record
+                self.targets[int(self.all_values[0])] = 0.99
+                self.n.train(self.inputs, self.targets)
+            pass
+        pass
 
         #says done, debugging
         print("Neuronal net ready.")
-        pass
-
-class cocktailapp:
-
-    def __init__(self):
-        #TO-DO: socket Server
         pass
 
     def waitfordata(self):
@@ -71,8 +77,8 @@ class cocktailapp:
         #  list! between 0 and 255
         ################################ 
 
-        self.scaled_input = (np.asfarray(all_values[1:]) / 255.0 * 0.99) + 0.01
-        print(scaled_input)
+        #self.scaled_input = (np.asfarray(all_values[1:]) / 255.0 * 0.99) + 0.01
+        #print(scaled_input)
         pass
     
     def rektrain(self):
@@ -84,18 +90,18 @@ class cocktailapp:
         pass
 
     def chkdebug(self):
-        self.test_data_file = open("mnist_dataset/mnist_test_10.csv", "r")
+        self.test_data_file = open(self.path_to_debugdata, "r")
         self.test_data_list = self.test_data_file.readlines()
         self.test_data_file.close()
 
-        self.all_values = self.test_data_list[0].split(",")
+        self.all_values = self.test_data_list[9].split(",")
         print(self.all_values[0])
-        self.a = n.query((np.asfarray(self.all_values[1:]) / 255.0 * 0.99) + 0.01)
+        self.all_values_transported = (np.asfarray(self.all_values[1:]) / 255.0 * 0.99) + 0.01
+        self.a = self.n.query(self.all_values_transported)
         print(self.a)
 
-nni = nninstall(input_nodes, hidden_nodes, output_nodes, learning_rate, path_to_trainingsdata)
-nni.firsttrain()
-app = cocktailapp()
+app = cocktailapp(input_nodes, hidden_nodes, output_nodes, learning_rate, path_to_trainingsdata, training_epoch, path_to_debugdata)
+app.firsttrain()
 app.chkdebug()
 
 #testdaten zum überprüfe

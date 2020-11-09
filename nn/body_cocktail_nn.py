@@ -20,10 +20,10 @@ class neuralNetwork:
         self.lr = learningrate
 
         #first starting weights, -0.5 till 0.5, matrices
-        #self.wih = (np.random.rand(self.inodes,self.hnodes) - 0.5) - easy, but not normal distribution in dependency of number of nodes
-        #self.who = (np.random.rand(self.hnodes,self.onodes) - 0.5) - easy, but not normal distribution in dependency of number of nodes
-        self.wih = np.random.normal(0.0, pow(self.hnodes, -0.5), (self.hnodes, self.inodes))
-        self.who = np.random.normal(0.0, pow(self.onodes, -0.5), (self.onodes, self.hnodes))
+        #self.wih = (np.random.rand(self.inodes,self.hnodes) - 0.5) #- easy, but not normal distribution in dependency of number of nodes
+        #self.who = (np.random.rand(self.hnodes,self.onodes) - 0.5) #- easy, but not normal distribution in dependency of number of nodes
+        self.wih = np.random.normal(0.0, pow(self.inodes, -0.5), (self.hnodes, self.inodes))
+        self.who = np.random.normal(0.0, pow(self.hnodes, -0.5), (self.onodes, self.hnodes))
 
         #sigmoid function called "activation function" in NN-context
         self.activation_function = lambda x: scipy.special.expit(x)
@@ -45,7 +45,7 @@ class neuralNetwork:
         final_outputs = self.activation_function(final_inputs)
 
         #error from target and input -> weigths between hidden layer and output layer
-        output_errors = targets - final_inputs
+        output_errors = targets - final_outputs
         #error from output_errors, split by weights, recombined at hidden nodes-> weigths between input and hidden layer 
         hidden_errors = np.dot(self.who.T, output_errors)
 
@@ -70,5 +70,5 @@ class neuralNetwork:
         #signals emerging from output layer
         final_outputs = self.activation_function(final_inputs)
 
-        return final_inputs
-        pass 
+        return final_outputs
+    
