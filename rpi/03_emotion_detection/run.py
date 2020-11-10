@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 import time
+from smbus2 import SMBus
 
 import cv2
 import numpy as np
@@ -15,8 +16,15 @@ import os
 import sys
 import subprocess
 
-if sys.platform == 'linux':
-    from gpiozero import CPUTemperature
+# I2C Bus
+bus = SMBus(1)
+addr = 0x05
+
+def readData():
+    data = bus.read_byte_data(addr,0) #throws error
+    return data
+
+lastState = readData()
 
 # input arg parsing
 parser = argparse.ArgumentParser()
@@ -57,14 +65,11 @@ cv2.ocl.setUseOpenCL(False)
 emotion_dict = {0: "Angry", 1: "Disgusted", 2: "Fearful",
                 3: "Happy", 4: "Neutral", 5: "Sad", 6: "Surprised"}
 
-def get_gpu_temp():
-    temp = subprocess.check_output(['vcgencmd measure_temp | egrep -o \'[0-9]*\.[0-9]*\''],
-                                    shell=True, universal_newlines=True)
-    return str(float(temp))
-
 # start the webcam feed
 cap = cv2.VideoCapture(0)
 while True:
+    rxData = readData()
+    print(rxData)
     # time for fps
     start_time = time.time()
 
@@ -86,24 +91,10 @@ while True:
         prediction = model.predict(cropped_img)
         maxindex = int(np.argmax(prediction))
         res = maxindex
-        # res = emotion_dict[maxindex]
-
         # print indices of emotion_dict --> output of current emotion
         print(res)
 
-    # full screen
-    if args.fullscreen:
-        cv2.namedWindow("video", cv2.WND_PROP_FULLSCREEN)
-        cv2.setWindowProperty("video", cv2.WND_PROP_FULLSCREEN, 1)
-
-    # debug info
-    if args.debug:
-        fps = str(int(1.0 / (time.time() - start_time)))
-        cv2.putText(frame, fps + " fps", (20, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
-        if sys.platform == 'linux':
-            cpu_temp = str(int(CPUTemperature().temperature)) + " C (CPU)"
-            cv2.putText(frame, cpu_temp, (20, 95), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
-            cv2.putText(frame, get_gpu_temp() + " C (GPU)", (20, 130), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+    
     cv2.imshow('video', cv2.resize(
         frame, (800, 480), interpolation=cv2.INTER_CUBIC))
     if cv2.waitKey(1) & 0xFF == ord('q'):
