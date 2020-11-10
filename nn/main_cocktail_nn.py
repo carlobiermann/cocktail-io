@@ -18,6 +18,7 @@ path_to_debugdata = "mnist_dataset\mnist_test_10.csv"
 import body_cocktail_nn as nn
 import numpy as np 
 import os
+import datetime
 
 class cocktailapp:
     
@@ -81,7 +82,24 @@ class cocktailapp:
         #print(scaled_input)
         pass
     
-    def rektrain(self):
+    def getdate(self):
+        #get date and time for additional data point
+        self.datetime = datetime.datetime.now()
+
+        #instance for list
+        self.time_list = [0, 1, 2, 3, 4, 5]
+
+        #format: 
+        self.time_list[0] = int(self.datetime.strftime("%m")) #month
+        self.time_list[1] = int(self.datetime.strftime("%d")) #day
+        self.time_list[2]  = int(self.datetime.strftime("%H")) #hour 24-format
+        self.time_list[3]  = int(self.datetime.strftime("%M")) #minute
+        self.time_list[4]  = int(self.datetime.strftime("%S")) #second 
+        self.time_list[5]  = int(datetime.datetime.today().weekday()) #weekday, 0 monday - 6 sunday
+
+        return self.time_list
+
+    def retrain(self):
         #TO-DO: train funktion activ net
         #To-DO: write to nn trainingdata set
         pass
@@ -101,7 +119,7 @@ class cocktailapp:
         print(self.a)
 
 app = cocktailapp(input_nodes, hidden_nodes, output_nodes, learning_rate, path_to_trainingsdata, training_epoch, path_to_debugdata)
-app.firsttrain()
-app.chkdebug()
-
-#testdaten zum überprüfe
+how = app.getdate()
+print(how)
+#app.firsttrain()
+#app.chkdebug()
