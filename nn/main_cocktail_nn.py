@@ -87,15 +87,24 @@ class cocktailapp:
         self.datetime = datetime.datetime.now()
 
         #instance for list
+        self.time_list_unconverted = [0, 1, 2, 3, 4, 5]
         self.time_list = [0, 1, 2, 3, 4, 5]
 
         #format: 
-        self.time_list[0] = int(self.datetime.strftime("%m")) #month
-        self.time_list[1] = int(self.datetime.strftime("%d")) #day
-        self.time_list[2]  = int(self.datetime.strftime("%H")) #hour 24-format
-        self.time_list[3]  = int(self.datetime.strftime("%M")) #minute
-        self.time_list[4]  = int(self.datetime.strftime("%S")) #second 
-        self.time_list[5]  = int(datetime.datetime.today().weekday()) #weekday, 0 monday - 6 sunday
+        self.time_list_unconverted[0] = int(self.datetime.strftime("%m")) #month
+        self.time_list_unconverted[1] = int(self.datetime.strftime("%d")) #day
+        self.time_list_unconverted[2] = int(self.datetime.strftime("%H")) #hour 24-format
+        self.time_list_unconverted[3] = int(self.datetime.strftime("%M")) #minute
+        self.time_list_unconverted[4] = int(self.datetime.strftime("%S")) #second 
+        self.time_list_unconverted[5] = int(datetime.datetime.today().weekday()) #weekday, 0 monday - 6 sunday
+
+        #scale time values from 0.01 to 1
+        self.time_list[0] = (self.time_list_unconverted[0] / 12 * 0.99) + 0.01 #12 months
+        self.time_list[1] = (self.time_list_unconverted[1] / 31 * 0.99) + 0.01 #31 days
+        self.time_list[2] = (self.time_list_unconverted[2] / 23 * 0.99) + 0.01 #23 hours
+        self.time_list[3] = (self.time_list_unconverted[3] / 59 * 0.99) + 0.01 #59 mins
+        self.time_list[4] = (self.time_list_unconverted[4] / 59 * 0.99) + 0.01 #59 secods 
+        self.time_list[5] = (self.time_list_unconverted[5] / 6 * 0.99) + 0.01 #6 + 1 days -> 0!
 
         return self.time_list
 
