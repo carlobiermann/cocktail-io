@@ -10,6 +10,8 @@ output_nodes = 10
 learning_rate  = 0.3
 training_epoch = 1
 
+debug_mode = 0
+
 path_to_trainingsdata = "mnist_dataset\mnist_train_100.csv"
 path_to_debugdata = "mnist_dataset\mnist_test_10.csv"
 
@@ -23,17 +25,23 @@ import datetime
 class cocktailapp:
     
     #init
-    def __init__(self, input_nodes, hidden_nodes, output_nodes, learning_rate, path_to_trainingsdata, training_epoch, path_to_debugdata):
-        #installing new nn
-        self.n = nn.neuralNetwork(input_nodes,hidden_nodes,output_nodes,learning_rate)
-        
+    def __init__(self, input_nodes, hidden_nodes, output_nodes, learning_rate, path_to_trainingsdata, training_epoch, path_to_debugdata, debug_mode):
+         
         self.script_dir = os.path.dirname(__file__)
         self.int_data_path = os.path.join(self.script_dir, path_to_trainingsdata)
         self.path_to_debugdata = os.path.join(self.script_dir, path_to_debugdata)
+        self.path_to_wih = os.path.join(self.script_dir, "saved_wih.npy")
+        self.path_to_who = os.path.join(self.script_dir, "saved_who.npy")
+
+        #installing new nn   
+        self.n = nn.neuralNetwork(input_nodes,hidden_nodes,output_nodes,learning_rate, self.path_to_wih, self.path_to_who)
 
         #variables 
         self.oonodes = output_nodes
         self.training_epoch = training_epoch
+        
+        #declarition
+        self.debug_mode = debug_mode
 
         #says done, debugging
         print("Put up Neuronal Net Body...") 
@@ -43,45 +51,60 @@ class cocktailapp:
 
     #train new nn with data
     def firsttrain(self):
-        #load the nn training data
-        self.training_data_file = open(self.int_data_path, "r")
-        self.training_data_list = self.training_data_file.readlines()
-        self.training_data_file.close()
-        print(len(self.training_data_list),"records in training files")
+        
+        #check if weights already exists
+        try:
+            f = open(self.path_to_wih, "r")
+            f.close()
+            f = open(self.path_to_who, "r")
+            f.close()
 
-        #how often trainingdata were used
-        for e in range(self.training_epoch):
-            #loop for every record
-            for record in self.training_data_list:
-                print("in loop!")
-                #format record
-                self.all_values = record.split(',')
-                #scale and shift the inputs
-                self.inputs = (np.asfarray(self.all_values[1:]) / 255.0 * 0.99) + 0.01
-                #create the target output values (all 0.01, expect the desired label which is 0.99)
-                self.targets = np.zeros(self.oonodes) + 0.01
-                #all_values[0] ist target label for this record
-                self.targets[int(self.all_values[0])] = 0.99
-                self.n.train(self.inputs, self.targets)
+        except FileNotFoundError:
+            print("No trained net found. Training new one!")
+            #load the nn training data
+            self.training_data_file = open(self.int_data_path, "r")
+            self.training_data_list = self.training_data_file.readlines()
+            self.training_data_file.close()
+            print(len(self.training_data_list),"records in training files")
+
+            #how often trainingdata were used
+            for e in range(self.training_epoch):
+                #loop for every record
+                for record in self.training_data_list:
+                    print("in loop!")
+                    #format record
+                    self.all_values = record.split(',')
+                    #scale and shift the inputs
+                    self.inputs = (np.asfarray(self.all_values[1:]) / 255.0 * 0.99) + 0.01
+                    #create the target output values (all 0.01, expect the desired label which is 0.99)
+                    self.targets = np.zeros(self.oonodes) + 0.01
+                    #all_values[0] ist target label for this record
+                    self.targets[int(self.all_values[0])] = 0.99
+                    self.n.train(self.inputs, self.targets)
             pass
-        pass
+
+        else:
+            print("Trained net found and used.")
+            self.n.loadweights()
 
         #says done, debugging
         print("Neuronal net ready.")
         pass
-
+    
+    #get data from cocktail-client
     def waitfordata(self):
         #TO-DO: socket loop to get data
 
         ################################
         # input format for data:
-        #  list! between 0 and 255
+        # 
         ################################ 
 
         #self.scaled_input = (np.asfarray(all_values[1:]) / 255.0 * 0.99) + 0.01
         #print(scaled_input)
         pass
     
+    #get actual date and time 
     def getdate(self):
         #get date and time for additional data point
         self.datetime = datetime.datetime.now()
@@ -108,27 +131,35 @@ class cocktailapp:
 
         return self.time_list
 
+    #train neuronal net from input
     def retrain(self):
-        #TO-DO: train funktion activ net
-        #To-DO: write to nn trainingdata set
-        pass
-
+        #check for debug mode
+        if self.debug_mode == 0:
+            #TO-DO: train funktion activ net
+            #...
+            self.n.saveweights()
+            pass
+        else:
+            pass
+    
+    #query for the right cocktail
     def query(self):
         pass
-
+    
+    #debug and testing function
     def chkdebug(self):
         self.test_data_file = open(self.path_to_debugdata, "r")
         self.test_data_list = self.test_data_file.readlines()
         self.test_data_file.close()
 
-        self.all_values = self.test_data_list[9].split(",")
+        self.all_values = self.test_data_list[3].split(",")
         print(self.all_values[0])
         self.all_values_transported = (np.asfarray(self.all_values[1:]) / 255.0 * 0.99) + 0.01
         self.a = self.n.query(self.all_values_transported)
         print(self.a)
 
-app = cocktailapp(input_nodes, hidden_nodes, output_nodes, learning_rate, path_to_trainingsdata, training_epoch, path_to_debugdata)
-how = app.getdate()
-print(how)
-#app.firsttrain()
-#app.chkdebug()
+        self.n.saveweights()
+
+app = cocktailapp(input_nodes, hidden_nodes, output_nodes, learning_rate, path_to_trainingsdata, training_epoch, path_to_debugdata, debug_mode)
+app.firsttrain()
+app.chkdebug()

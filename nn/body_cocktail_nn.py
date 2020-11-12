@@ -10,7 +10,7 @@ import numpy as np
 class neuralNetwork:
 
     #init
-    def __init__(self, inputnodes, hiddennodes, outputnodes, learningrate):
+    def __init__(self, inputnodes, hiddennodes, outputnodes, learningrate, path_to_wih, path_to_who):
         #definiton of input-, hidden- and outputnodes
         self.inodes = inputnodes
         self.hnodes = hiddennodes
@@ -27,6 +27,10 @@ class neuralNetwork:
 
         #sigmoid function called "activation function" in NN-context
         self.activation_function = lambda x: scipy.special.expit(x)
+
+        #paths
+        self.path_to_wih = path_to_wih
+        self.path_to_who = path_to_who
         pass
 
     #training
@@ -71,4 +75,15 @@ class neuralNetwork:
         final_outputs = self.activation_function(final_inputs)
 
         return final_outputs
-    
+
+    #save weigths    
+    def saveweights(self):
+        np.save(self.path_to_wih, self.wih)
+        np.save(self.path_to_who, self.who)
+        pass
+
+    #load weights
+    def loadweights(self):
+        self.wih = np.load(self.path_to_wih)
+        self.who = np.load(self.path_to_who)
+        pass
