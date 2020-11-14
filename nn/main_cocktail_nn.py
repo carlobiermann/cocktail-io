@@ -84,10 +84,11 @@ class cocktailapp:
             pass
 
         else:
+            #saved wih and who files are found
             print("Trained net found and used.")
             self.n.loadweights()
 
-        #says done, debugging
+        #says done
         print("Neuronal net ready.")
         pass
     
@@ -133,6 +134,7 @@ class cocktailapp:
 
     #train neuronal net from input
     def retrain(self):
+        
         #check for debug mode
         if self.debug_mode == 0:
             #TO-DO: train funktion activ net
@@ -144,7 +146,16 @@ class cocktailapp:
     
     #query for the right cocktail
     def query(self):
-        pass
+        #TO-DO: query
+        
+        #fallback "error"-handling if nn produces probabilities over 100%
+        for x in self.outputs_list:
+            if self.outputs_list[x] > 1:
+                print("Oops! Something went wrong. Setting fallback Values of 10 percent for each.")
+                for x in self.outputs_list
+                    self.outputs_list[x] = 0.1 
+            else:
+                pass  
     
     #debug and testing function
     def chkdebug(self):
