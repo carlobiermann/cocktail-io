@@ -1,7 +1,5 @@
-#import tkinter as tk
-
 import sys
-import run_New
+import emotions
 
 try: 
     import Tkinter as tk
@@ -77,7 +75,7 @@ class PageOne(tk.Frame):
         btn.place(relx=0.38, rely=0.769, height=51, width=141)    
 
     def routineStart(self):
-        run_New.emotionDetection()
+        print(emotions.emotionDetection())
 
 if __name__ == "__main__":
     app = SampleApp()
