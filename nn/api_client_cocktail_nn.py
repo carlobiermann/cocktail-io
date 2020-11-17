@@ -84,6 +84,6 @@ class nnclient:
             self.sock.close()
 
 client = nnclient("localhost", 10000)
-a = [0,3,43,23,124,0,0,0,0,0,0,0,0,0,0,0,23,23,4,4,5,3,2,1,13,4,5,3,12,4,7,23,34,5,32,1,2,34]
-client.formatdata(50, 75, a)
+array_values_emotions = [0,3,43,23,124,0,0,0,0,0,0,0,0,0,0,0,23,23,4,4,5,3,2,1,13,4,5,3,12,4,7,23,34,5,32,1,2,34]
+client.formatdata(50, 75, array_values_emotions)
 client.senddata()

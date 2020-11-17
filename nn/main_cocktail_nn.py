@@ -15,39 +15,54 @@ debug_mode = 0
 path_to_trainingsdata = "mnist_dataset\mnist_train_100.csv"
 path_to_debugdata = "mnist_dataset\mnist_test_10.csv"
 
+serverip = "localhost"
+port = 10000
+
 ##########################################################
 
 import body_cocktail_nn as nn
 import numpy as np 
 import os
 import datetime
+import socket
+import sys
+import time
 
 class cocktailapp:
     
     #init
-    def __init__(self, input_nodes, hidden_nodes, output_nodes, learning_rate, path_to_trainingsdata, training_epoch, path_to_debugdata, debug_mode):
+    def __init__(self, input_nodes, hidden_nodes, output_nodes, learning_rate, path_to_trainingsdata, training_epoch, path_to_debugdata, debug_mode, serverip, port):
          
         self.script_dir = os.path.dirname(__file__)
         self.int_data_path = os.path.join(self.script_dir, path_to_trainingsdata)
         self.path_to_debugdata = os.path.join(self.script_dir, path_to_debugdata)
         self.path_to_wih = os.path.join(self.script_dir, "saved_wih.npy")
         self.path_to_who = os.path.join(self.script_dir, "saved_who.npy")
-
+        
         #installing new nn   
         self.n = nn.neuralNetwork(input_nodes,hidden_nodes,output_nodes,learning_rate, self.path_to_wih, self.path_to_who)
 
         #variables 
         self.oonodes = output_nodes
         self.training_epoch = training_epoch
-        
-        #declarition
+        self.serverip = serverip
+        self.port = port
         self.debug_mode = debug_mode
 
         #says done, debugging
         print("Put up Neuronal Net Body...") 
-        pass 
 
-        #TO-DO: socket Server
+        # Create a TCP/IP socket
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # 
+
+        # Bind the socket to the port
+        self.server_address = (self.serverip, self.port)
+        print('starting up on {} port {}'.format(*self.server_address))
+        self.sock.bind(self.server_address)
+
+        # Listen for incoming connections
+        self.sock.listen(1)
 
     #train new nn with data
     def firsttrain(self):
@@ -103,7 +118,35 @@ class cocktailapp:
 
         #self.scaled_input = (np.asfarray(all_values[1:]) / 255.0 * 0.99) + 0.01
         #print(scaled_input)
-        pass
+        #pass
+        try:
+            while True:
+                # Wait for a connection
+                print('waiting for a connection')
+                self.connection, self.client_address = self.sock.accept()
+                try:
+                    print('connection from', self.client_address)
+                    # Receive the data in small chunks and retransmit it
+                    while True:
+                        self.data = self.connection.recv(4096)
+                        print(self.data)
+                        print(list(self.data))
+                        if self.data:
+                            print("sending answer....")   
+                            self.answer = ("Hello!").encode("utf-8")
+                            self.connection.sendall(self.answer)
+                        else:
+                            break
+
+                finally:
+                    # Clean up the connection
+                    self.connection.close()
+                    print("close.")
+
+        except KeyboardInterrupt:
+            self.sock.close()
+            print("Press Ctrl-C to terminate while statement")
+            pass
     
     #get actual date and time 
     def getdate(self):
@@ -145,17 +188,22 @@ class cocktailapp:
             pass
     
     #query for the right cocktail
-    def query(self):
-        #TO-DO: query
+    def query(self, input_list):
         
+        #query the nn 
+        self.input_list=input_list
+        self.outputs_list = self.n.query(input_list)
+
         #fallback "error"-handling if nn produces probabilities over 100%
         for x in self.outputs_list:
             if self.outputs_list[x] > 1:
-                print("Oops! Something went wrong. Setting fallback Values of 10 percent for each.")
-                for x in self.outputs_list
+                print("Oops! Something went wrong. Setting fallback values of 10 percent for each.")
+                for x in self.outputs_list:
                     self.outputs_list[x] = 0.1 
             else:
                 pass  
+        
+        return self.outputs_list
     
     #debug and testing function
     def chkdebug(self):
@@ -171,6 +219,7 @@ class cocktailapp:
 
         self.n.saveweights()
 
-app = cocktailapp(input_nodes, hidden_nodes, output_nodes, learning_rate, path_to_trainingsdata, training_epoch, path_to_debugdata, debug_mode)
-app.firsttrain()
-app.chkdebug()
+app = cocktailapp(input_nodes, hidden_nodes, output_nodes, learning_rate, path_to_trainingsdata, training_epoch, path_to_debugdata, debug_mode, serverip, port)
+app.waitfordata()
+#app.firsttrain()
+#app.chkdebug()
