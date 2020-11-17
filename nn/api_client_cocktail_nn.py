@@ -71,7 +71,9 @@ class nnclient:
 
             while self.waitforreceive == 1:
                 self.data = self.sock.recv(4096)
-                print('received {!r}'.format(self.data))
+                #print('received {!r}'.format(self.data))
+                print("received...")
+                print(list(self.data))
                 if not(self.data) == 0:
                     self.waitforreceive = 0
                 else:

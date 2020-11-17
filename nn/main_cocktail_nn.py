@@ -4,8 +4,8 @@
 ##########################################################
 
 ## Define the NN ##
-input_nodes = 784
-hidden_nodes = 100
+input_nodes = 15
+hidden_nodes = 10
 output_nodes = 10
 learning_rate  = 0.3
 training_epoch = 1
@@ -28,10 +28,11 @@ import socket
 import sys
 import time
 
+##########################################################
 class cocktailapp:
     
     #init
-    def __init__(self, input_nodes, hidden_nodes, output_nodes, learning_rate, path_to_trainingsdata, training_epoch, path_to_debugdata, debug_mode, serverip, port):
+    def __init__(self, input_nodes, hidden_nodes, output_nodes, learning_rate, path_to_trainingsdata, training_epoch, path_to_debugdata, debug_mode):
          
         self.script_dir = os.path.dirname(__file__)
         self.int_data_path = os.path.join(self.script_dir, path_to_trainingsdata)
@@ -45,24 +46,10 @@ class cocktailapp:
         #variables 
         self.oonodes = output_nodes
         self.training_epoch = training_epoch
-        self.serverip = serverip
-        self.port = port
         self.debug_mode = debug_mode
 
         #says done, debugging
         print("Put up Neuronal Net Body...") 
-
-        # Create a TCP/IP socket
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # 
-
-        # Bind the socket to the port
-        self.server_address = (self.serverip, self.port)
-        print('starting up on {} port {}'.format(*self.server_address))
-        self.sock.bind(self.server_address)
-
-        # Listen for incoming connections
-        self.sock.listen(1)
 
     #train new nn with data
     def firsttrain(self):
@@ -106,48 +93,7 @@ class cocktailapp:
         #says done
         print("Neuronal net ready.")
         pass
-    
-    #get data from cocktail-client
-    def waitfordata(self):
-        #TO-DO: socket loop to get data
 
-        ################################
-        # input format for data:
-        # 
-        ################################ 
-
-        #self.scaled_input = (np.asfarray(all_values[1:]) / 255.0 * 0.99) + 0.01
-        #print(scaled_input)
-        #pass
-        try:
-            while True:
-                # Wait for a connection
-                print('waiting for a connection')
-                self.connection, self.client_address = self.sock.accept()
-                try:
-                    print('connection from', self.client_address)
-                    # Receive the data in small chunks and retransmit it
-                    while True:
-                        self.data = self.connection.recv(4096)
-                        print(self.data)
-                        print(list(self.data))
-                        if self.data:
-                            print("sending answer....")   
-                            self.answer = ("Hello!").encode("utf-8")
-                            self.connection.sendall(self.answer)
-                        else:
-                            break
-
-                finally:
-                    # Clean up the connection
-                    self.connection.close()
-                    print("close.")
-
-        except KeyboardInterrupt:
-            self.sock.close()
-            print("Press Ctrl-C to terminate while statement")
-            pass
-    
     #get actual date and time 
     def getdate(self):
         #get date and time for additional data point
@@ -195,13 +141,13 @@ class cocktailapp:
         self.outputs_list = self.n.query(input_list)
 
         #fallback "error"-handling if nn produces probabilities over 100%
-        for x in self.outputs_list:
-            if self.outputs_list[x] > 1:
-                print("Oops! Something went wrong. Setting fallback values of 10 percent for each.")
-                for x in self.outputs_list:
-                    self.outputs_list[x] = 0.1 
-            else:
-                pass  
+        # for x in self.outputs_list:
+        #     if self.outputs_list[x] > 1:
+        #         print("Oops! Something went wrong. Setting fallback values of 10 percent for each.")
+        #         for x in self.outputs_list:
+        #             self.outputs_list[x] = 0.1 
+        #     else:
+        #         pass  
         
         return self.outputs_list
     
@@ -219,7 +165,101 @@ class cocktailapp:
 
         self.n.saveweights()
 
-app = cocktailapp(input_nodes, hidden_nodes, output_nodes, learning_rate, path_to_trainingsdata, training_epoch, path_to_debugdata, debug_mode, serverip, port)
-app.waitfordata()
+def startingsocket(serverip, port):
+    # Create a TCP/IP socket
+    global sock
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # 
+
+    # Bind the socket to the port
+    server_address = (serverip, port)
+    print('starting up on {} port {}'.format(*server_address))
+    sock.bind(server_address)
+
+    # Listen for incoming connections
+    sock.listen(1)
+
+def sortingdata(data, val_time):
+    ################################
+    # input format for data:
+    # input_array[0] = 0 for syntax check
+    # input_array[1] = value temperature scaled 0-255
+    # input_array[2] = value alcohol scaled 0-255
+    # input_array[3...] = value emotions 0-6
+    ################################ 
+    return_values = [1,2,3,4,5,6,7,8,9]
+
+    temp_data = data[1]
+    alc_data = data[2]
+    emotions_data = data[3:]
+    val_angry_0 = (emotions_data.count(0) / len(emotions_data)) + 0.01
+    val_disgusted_1 = (emotions_data.count(1) / len(emotions_data)) + 0.01
+    val_fearful_2 = (emotions_data.count(2) / len(emotions_data)) + 0.01
+    val_happy_3 = (emotions_data.count(3) / len(emotions_data)) + 0.01
+    val_neutral_4 = (emotions_data.count(4) / len(emotions_data)) + 0.01 
+    val_sad_5 = (emotions_data.count(5) / len(emotions_data)) + 0.01
+    val_surprised_6 = (emotions_data.count(6) / len(emotions_data)) + 0.01
+
+    #get the rigth ordering
+    return_values[0] = temp_data
+    return_values[1] = alc_data
+    return_values[2] = val_angry_0
+    return_values[3] = val_disgusted_1
+    return_values[4] = val_fearful_2
+    return_values[5] = val_happy_3
+    return_values[6] = val_neutral_4
+    return_values[7] = val_sad_5
+    return_values[8] = val_surprised_6
+    return_values.extend(val_time)
+
+    return return_values
+
+    ###########################
+    #
+    # return_values : list with 15 elements
+    #
+    ###########################
+
+##########################################################
+app = cocktailapp(input_nodes, hidden_nodes, output_nodes, learning_rate, path_to_trainingsdata, training_epoch, path_to_debugdata, debug_mode)
+startingsocket(serverip, port)
 #app.firsttrain()
 #app.chkdebug()
+
+try:
+    while True:
+        # Wait for a connection
+        print('waiting for a connection')
+        connection, client_address = sock.accept()
+        try:
+            print('connection from', client_address)
+            # Receive the data in small chunks and retransmit it
+            while True:
+                data = connection.recv(4096)
+                print(list(data))
+                
+                #main routine
+                if data:
+                    val_time = app.getdate() 
+                    input_variables_to_nn = sortingdata(data,val_time) 
+                    output_variables_from_nn = app.query(input_variables_to_nn)
+                    print("sending answer....") 
+                    print(output_variables_from_nn)  
+                    #answer = ("hello!".encode("utf-8"))
+                    answer = bytearray(output_variables_from_nn)
+                    print(" ")
+                    print(list(answer))
+                    connection.sendall(answer)
+                else:
+                    break
+
+        finally:
+            # Clean up the connection
+            connection.close()
+            print("close.")
+
+except KeyboardInterrupt:
+    sock.close()
+    print("Ctrl + C: terminated in front of keyboard interrupt.")
+    pass
