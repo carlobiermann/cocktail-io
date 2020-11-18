@@ -44,7 +44,7 @@ def emotionDetection():
 
     while time.time() < timeout:
 
-        # Find haar cascade to draw bounding box around face
+        # detect faces
         ret, frame = cap.read()
         if not ret:
             break
@@ -53,20 +53,15 @@ def emotionDetection():
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = facecasc.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5)
 
+        # detect emotions and assign emotion indices to an array
         for (x, y, w, h) in faces:
             cv2.rectangle(frame, (x, y-50), (x+w, y+h+10), (255, 0, 0), 2)
             roi_gray = gray[y:y + h, x:x + w]
-            cropped_img = np.expand_dims(np.expand_dims(
-                cv2.resize(roi_gray, (48, 48)), -1), 0)
+            cropped_img = np.expand_dims(np.expand_dims(cv2.resize(roi_gray, (48, 48)), -1), 0)
             prediction = model.predict(cropped_img)
             maxindex = int(np.argmax(prediction))
             # collecting emotions in an array
             emotions.append(maxindex)
-
-        cv2.imshow('video', cv2.resize(
-            frame, (800, 480), interpolation=cv2.INTER_CUBIC))
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
 
     cap.release()
     cv2.destroyAllWindows()
