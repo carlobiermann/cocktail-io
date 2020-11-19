@@ -5,8 +5,8 @@
 
 ## Define the NN ##
 input_nodes = 15
-hidden_nodes = 10
-output_nodes = 10
+hidden_nodes = 100
+output_nodes = 8
 learning_rate  = 0.3
 training_epoch = 1
 
@@ -225,9 +225,9 @@ def sortingdata(data, val_time):
 def checkiftraining(data):
     #checking if the data stream from client is training data or query data
     
-    if data[0] = 0:
+    if (data[0] == 0):
         return "query"
-    elif data [0] = 1:
+    elif (data[0] == 1):
         return "training"
     else:
         raise Exception("cant process data from client")
@@ -247,7 +247,7 @@ try:
             print('connection from', client_address)
             # Receive the data in small chunks and retransmit it
             while True:
-                data = connection.recv(4096)
+                data = connection.recv(1024)
                 print(list(data))
                 
                 ##############
@@ -256,33 +256,44 @@ try:
                 
                 if data:
                     
-                    if checkiftraining(data) = "query"
+                    #which data?
+                    datatype = checkiftraining(data)
+
+                    if (datatype == "query"):
+
+                        val_time = app.getdate() 
+                        input_variables_to_nn = sortingdata(data,val_time) 
+                        output_variables_from_nn = app.query(input_variables_to_nn)
+                        print("sending answer....") 
+                        print(output_variables_from_nn)  
+                        #answer = ("hello!".encode("utf-8"))
+
+                        #generating a return vector
+                        most_signifikant_cocktails = [0,0,0,0,0,0]
+
+                        #get the three biggest values from nn
+                        for x in range(3):
+                            value_search_temp = output_variables_from_nn.max()
+                            pos_search_temp = output_variables_from_nn.argmax()
+                            output_variables_from_nn[pos_search_temp] = 0
+                            most_signifikant_cocktails[x] = pos_search_temp
+                            most_signifikant_cocktails[x+3] =  value_search_temp
+
+
+                        print(most_signifikant_cocktails)
+
+                        answer = struct.pack( "<6f",*most_signifikant_cocktails)
+
+                        print(" ")
+                        print(list(answer))
+                        connection.sendall(answer)
+
+                    elif (datatype == "training"):
+                        print(data)
+                        connection.sendall(b"thank u")
+                        #
+                        pass
                     
-
-
-                    val_time = app.getdate() 
-                    input_variables_to_nn = sortingdata(data,val_time) 
-                    output_variables_from_nn = app.query(input_variables_to_nn)
-                    print("sending answer....") 
-                    print(output_variables_from_nn)  
-                    #answer = ("hello!".encode("utf-8"))
-
-                    #generating a return vector
-                    most_signifikant_cocktails = [0,0,0,0,0,0]
-
-                    #get the three biggest values from nn
-                    for x in range(3):
-                        value_search_temp = output_variables_from_nn.max()
-                        pos_search_temp = output_variables_from_nn.argmax()
-                        output_variables_from_nn[pos_search_temp] = 0
-                        most_signifikant_cocktails[x] = pos_search_temp
-                        most_signifikant_cocktails[x+3] =  value_search_temp
-                    
-                    answer = struct.pack( "<6f",*most_signifikant_cocktails)
-
-                    print(" ")
-                    print(list(answer))
-                    connection.sendall(answer)
                 else:
                     break
 
