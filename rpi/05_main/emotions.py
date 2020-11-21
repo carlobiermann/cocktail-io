@@ -65,4 +65,4 @@ def emotionDetection():
 
     cap.release()
     cv2.destroyAllWindows()
-    return emotions
+    print(emotions)

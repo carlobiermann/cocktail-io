@@ -1,6 +1,7 @@
 import sys
 import emotions
 
+
 try: 
     import Tkinter as tk
 except ImportError:
@@ -75,7 +76,7 @@ class PageOne(tk.Frame):
         T.place(relx=0.083, rely=0.329, relheight=0.34, relwidth=0.821)
 
         btn = tk.Button(self)
-        btn.configure(text="Bereit!", font=('Arial', 12), borderwidth="0")
+        btn.configure(text="Weiter", font=('Arial', 12), borderwidth="0")
         btn.configure(bg="#212121", activebackground="#ff6666", foreground="#ffffff")
         btn.configure(command=lambda:master.switch_frame(PageTwo))
         btn.place(relx=0.331, rely=0.731, height=71, width=201)
@@ -87,18 +88,40 @@ class PageTwo(tk.Frame):
         tk.Frame.configure(self, background="#212121")
 
         lbl1 = tk.Label(self)
-        lbl1.configure(text="Es geht gleich los, schaue bitte in die Kamera", font=('Arial', 16, "bold"), bg="#212121")
+        lbl1.configure(text="Druecke auf 'Bereit' und schaue nach dem Countdown in die Kamera", font=('Arial', 12, "bold"), bg="#212121")
         lbl1.configure(foreground="#ffffff")
         lbl1.place(relx=0.066, rely=0.172, height=83, width=519)
 
-        lbl2 = tk.Label(self)
-        lbl2.configure(activebackground="#f9f9f9")
-        lbl2.configure(background="#8e8e8e")
-        lbl2.configure(font=('Arial',40), borderwidth="0")
-        lbl2.configure(text="3")
-        
-        #print(emotions.emotionDetection())
+        self.lbl2 = tk.Label(master)
+        self.lbl2.configure(activebackground="#f9f9f9")
+        self.lbl2.configure(background="#8e8e8e")
+        self.lbl2.configure(foreground="#ff6666")
+        self.lbl2.configure(font=('Arial',60), borderwidth="0")
+        self.lbl2.configure(text="3")
+        self.lbl2.place(relx=0.310, rely=0.409, height=141, width=220)
 
+        self.btn = tk.Button(master)
+        self.btn.configure(text="Bereit!", font=('Arial', 12), borderwidth="0")
+        self.btn.configure(bg="#212121", activebackground="#ff6666", foreground="#ffffff")
+        self.btn.configure(command=self.routineStart)
+        self.btn.place(relx=0.331, rely=0.731, height=71, width=201)
+
+        self.btn2 = tk.Button(master)
+        self.btn2.configure(text="Weiter", font=('Arial', 12), borderwidth="0")
+        self.btn2.configure(bg="#216870", activebackground="#ff6666", foreground="#ffffff")
+        self.btn2.configure(command=lambda:master.switch_frame(PageOne))
+       
+    def routineStart(self):
+        stand = int(self.lbl2.cget('text'))
+        if stand > 0:
+            stand = stand - 1
+            self.lbl2.configure(text=str(stand))
+            self.lbl2.after(1000, self.routineStart)
+        elif stand == 0:
+            emotions.emotionDetection()
+            self.btn.place_forget()
+            self.btn2.place(relx=0.331, rely=0.731, height=71, width=201)
+            self.lbl2.configure(text="Messung fertig", font=('Arial',24))
 
 if __name__ == "__main__":
     app = SampleApp()
