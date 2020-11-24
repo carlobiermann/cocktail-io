@@ -182,4 +182,4 @@ array_values_emotions = ran_floats#[0,1,2,3,4,5,6,0,1,4,3,4,5,7,0,6,5,4,3,2,1,0,
 data_query = client.formatdata(temp_temperature, temp_alc, array_values_emotions)
 nnvalues = client.senddata(data_query,"query", 1024)
 time.sleep(2)
-client.senddata(nnvalues[1],"training", 1024)
+client.senddata(nnvalues[random.randrange(3)],"training", 1024)

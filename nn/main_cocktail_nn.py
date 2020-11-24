@@ -12,7 +12,7 @@ training_epoch = 1
 
 debug_mode = 0
 
-path_to_trainingsdata = "mnist_dataset\mnist_train_100.csv"
+path_to_trainingsdata = "cocktail_dataset\cocktail_training_data.csv"
 path_to_debugdata = "mnist_dataset\mnist_test_10.csv"
 
 serverip = "localhost"
@@ -28,6 +28,7 @@ import socket
 import sys
 import time
 import struct
+import csv
 
 ##########################################################
 class cocktailapp:
@@ -78,7 +79,7 @@ class cocktailapp:
                     #format record
                     self.all_values = record.split(',')
                     #scale and shift the inputs
-                    self.inputs = (np.asfarray(self.all_values[1:]) / 255.0 * 0.99) + 0.01
+                    self.inputs = self.all_values[1:]
                     #create the target output values (all 0.01, expect the desired label which is 0.99)
                     self.targets = np.zeros(self.oonodes) + 0.01
                     #all_values[0] ist target label for this record
@@ -123,12 +124,35 @@ class cocktailapp:
         return self.time_list
 
     #train neuronal net from input
-    def retrain(self):
+    def retrain(self, data, mode):
+        self.data_from_client = data
+        self.trainings_mode = mode
         
         #check for debug mode
         if self.debug_mode == 0:
-            #TO-DO: train funktion activ net
-            #...
+            
+            #park the sensor data
+            if (self.trainings_mode == "sensor_data"):
+                self.parking_sensor_data = self.data_from_client
+
+            #if there is a trainingvalue
+            elif (self.trainings_mode == "user_input"):
+                self.parking_user_input = self.data_from_client[1]
+                self.parking_sensor_data.insert(0, self.parking_user_input)
+
+                #write to training csv file
+                with open(self.int_data_path, 'a', newline='') as csvsavefile:
+                    wr = csv.writer(csvsavefile, quoting=csv.QUOTE_ALL)
+                    wr.writerow(self.parking_sensor_data)
+
+                #generate target list for n.train
+                self.generated_target_list_from_client = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+                self.generated_target_list_from_client.insert(self.parking_user_input, 0.99)
+
+                #train the nn 
+                self.parking_sensor_data.pop(0)
+                self.n.train(self.parking_sensor_data,self.generated_target_list_from_client)
+
             self.n.saveweights()
             pass
         else:
@@ -140,15 +164,6 @@ class cocktailapp:
         #query the nn 
         self.input_list=input_list
         self.outputs_list = self.n.query(input_list)
-
-        #fallback "error"-handling if nn produces probabilities over 100%
-        # for x in self.outputs_list:
-        #     if self.outputs_list[x] > 1:
-        #         print("Oops! Something went wrong. Setting fallback values of 10 percent for each.")
-        #         for x in self.outputs_list:
-        #             self.outputs_list[x] = 0.1 
-        #     else:
-        #         pass  
         
         return self.outputs_list
     
@@ -194,11 +209,11 @@ def sortingdata(data, val_time, input_nodes):
     # time - single
     # alc - >double dynamic
     # emotions - >double dynamic
-    ################################ 
+    ################################
     return_values = [1,2,3,4,5,6,7]
 
-    temp_data = data[1]
-    alc_data = data[2]
+    temp_data = ((data[1]/ 255.0) * 0.99) + 0.01
+    alc_data = ((data[2]/ 255.0) * 0.99) + 0.01
     emotions_data = data[3:]
     val_angry_0 = (emotions_data.count(0) / len(emotions_data)) + 0.01
     val_disgusted_1 = (emotions_data.count(1) / len(emotions_data)) + 0.01
@@ -230,7 +245,7 @@ def sortingdata(data, val_time, input_nodes):
 
     ###########################
     #
-    # return_values : list with 8 + range*7 elements
+    # return_values : list with 8 + range_high_boarder*8 elements
     #
     ###########################
 
@@ -247,7 +262,7 @@ def checkiftraining(data):
 ##########################################################
 app = cocktailapp(input_nodes, hidden_nodes, output_nodes, learning_rate, path_to_trainingsdata, training_epoch, path_to_debugdata, debug_mode)
 startingsocket(serverip, port)
-#app.firsttrain()
+app.firsttrain()
 #app.chkdebug()
 
 try:
@@ -274,7 +289,8 @@ try:
                     if (datatype == "query"):
 
                         val_time = app.getdate() 
-                        input_variables_to_nn = sortingdata(data,val_time,input_nodes) 
+                        input_variables_to_nn = sortingdata(data,val_time,input_nodes)
+                        app.retrain(input_variables_to_nn, "sensor_data") 
                         output_variables_from_nn = app.query(input_variables_to_nn)
                         print("sending answer....") 
                         print(output_variables_from_nn)  
@@ -301,9 +317,10 @@ try:
                         connection.sendall(answer)
 
                     elif (datatype == "training"):
+                        #train the nn
                         print(data)
+                        app.retrain(data, "user_input")
                         connection.sendall(b"thank u")
-                        #
                         pass
                     
                 else:
