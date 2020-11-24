@@ -4,9 +4,9 @@
 ##########################################################
 
 ## Define the NN ##
-input_nodes = 15
-hidden_nodes = 100
-output_nodes = 8
+input_nodes = 87              #must!: input_nodes -7 / 8 = int
+hidden_nodes = 25
+output_nodes = 10
 learning_rate  = 0.3
 training_epoch = 1
 
@@ -181,15 +181,21 @@ def startingsocket(serverip, port):
     # Listen for incoming connections
     sock.listen(1)
 
-def sortingdata(data, val_time):
+def sortingdata(data, val_time, input_nodes):
     ################################
     # input format for data:
     # input_array[0] = 0 for syntax check
     # input_array[1] = value temperature scaled 0-255
     # input_array[2] = value alcohol scaled 0-255
     # input_array[3...] = value emotions 0-6
+    #
+    # Weigth of the input params
+    # temp - single
+    # time - single
+    # alc - >double dynamic
+    # emotions - >double dynamic
     ################################ 
-    return_values = [1,2,3,4,5,6,7,8,9]
+    return_values = [1,2,3,4,5,6,7]
 
     temp_data = data[1]
     alc_data = data[2]
@@ -202,23 +208,29 @@ def sortingdata(data, val_time):
     val_sad_5 = (emotions_data.count(5) / len(emotions_data)) + 0.01
     val_surprised_6 = (emotions_data.count(6) / len(emotions_data)) + 0.01
 
+    #packing emotion and alc data to list for multiple extend
+    val_emotionsandalc_list = [val_angry_0, val_disgusted_1, val_fearful_2, val_happy_3, val_neutral_4, val_sad_5, val_surprised_6, alc_data]
+
     #get the rigth ordering
     return_values[0] = temp_data
-    return_values[1] = alc_data
-    return_values[2] = val_angry_0
-    return_values[3] = val_disgusted_1
-    return_values[4] = val_fearful_2
-    return_values[5] = val_happy_3
-    return_values[6] = val_neutral_4
-    return_values[7] = val_sad_5
-    return_values[8] = val_surprised_6
-    return_values.extend(val_time)
+    return_values[1] = val_time[0]
+    return_values[2] = val_time[1]
+    return_values[3] = val_time[2]
+    return_values[4] = val_time[3]
+    return_values[5] = val_time[4]
+    return_values[6] = val_time[5]
+
+    #adding emotion recognation and alc multiple for weigth of this params in dynamic of input nodes
+    range_high_border = (int((input_nodes-7)/8))+1
+
+    for x in range(1,range_high_border,1):
+        return_values.extend(val_emotionsandalc_list)
 
     return return_values
 
     ###########################
     #
-    # return_values : list with 15 elements
+    # return_values : list with 8 + range*7 elements
     #
     ###########################
 
@@ -262,7 +274,7 @@ try:
                     if (datatype == "query"):
 
                         val_time = app.getdate() 
-                        input_variables_to_nn = sortingdata(data,val_time) 
+                        input_variables_to_nn = sortingdata(data,val_time,input_nodes) 
                         output_variables_from_nn = app.query(input_variables_to_nn)
                         print("sending answer....") 
                         print(output_variables_from_nn)  
