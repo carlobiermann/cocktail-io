@@ -12,7 +12,7 @@ training_epoch = 1
 
 debug_mode = 0
 
-path_to_trainingsdata = "cocktail_dataset\cocktail_training_data.csv"
+path_to_trainingsdata = "cocktail_dataset\cocktail_training_data_random.csv"
 path_to_debugdata = "mnist_dataset\mnist_test_10.csv"
 
 serverip = "localhost"
@@ -76,14 +76,23 @@ class cocktailapp:
                 #loop for every record
                 for record in self.training_data_list:
                     print("in loop!")
+                    #record = [float(i) for i in record]
                     #format record
                     self.all_values = record.split(',')
+                    self.all_values_converted = []
+                   
+                    for element in self.all_values:
+                        self.all_values_converted.append(float(element.strip('""\n')))
+                    
                     #scale and shift the inputs
-                    self.inputs = self.all_values[1:]
+                    self.inputs = self.all_values_converted[1:]
                     #create the target output values (all 0.01, expect the desired label which is 0.99)
                     self.targets = np.zeros(self.oonodes) + 0.01
+
+
+
                     #all_values[0] ist target label for this record
-                    self.targets[int(self.all_values[0])] = 0.99
+                    self.targets[int(self.all_values_converted[0])] = 0.99
                     self.n.train(self.inputs, self.targets)
             pass
 
