@@ -40,17 +40,34 @@ class StartPage(tk.Frame):
         lbl.configure(foreground="#ffffff")
         lbl.place(relx=0.066, rely=0.088, height=83, width=519)
 
-        Beschreibung = "Ich bin dein Barkeeper 4.0 \nAnhand der Stimmung und deinem Pegel weiss ich,\nwelchen Drink du jetzt brauchst."
+        self.lbl1 = tk.Label(master)
+        self.lbl1.configure(background="#212121")
+        self.lbl1.configure(borderwidth="0")
+        self.lbl1.configure(foreground="#ffffff")
+        self.lbl1.place(relx=0.066, rely=0.344, height=43, width=519)
 
-        T = tk.Text(self)
-        T.configure(font=('Arial',12), bg="#212121", borderwidth="0")
-        T.configure(foreground="#ffffff")
-        T.configure(wrap="word")
-        T.insert("1.0", Beschreibung)
-        T.place(relx=0.083, rely=0.329, relheight=0.34, relwidth=0.821)
+        self.lbl2 = tk.Label(master)
+        self.lbl2.configure(background="#212121")
+        self.lbl2.configure(borderwidth="0")
+        self.lbl2.configure(foreground="#ffffff")
+        self.lbl2.place(relx=0.066, rely=0.43, height=43, width=519)
+        
+        self.lbl3 = tk.Label(master)
+        self.lbl3.configure(background="#212121")
+        self.lbl3.configure(borderwidth="0")
+        self.lbl3.configure(foreground="#ffffff")
+        self.lbl3.place(relx=0.066, rely=0.516, height=43, width=519)
+
+        zeile1 = "Ich bin dein Barkeeper 4.0"
+        zeile2 = "Anhand deiner Stimmung und deinem Pegel"
+        zeile3 = "weiss ich, welchen Drink du jetzt brauchst."
+
+        self.lbl1.configure(text=zeile1, font=('Arial', 16, "bold"), bg="#212121")
+        self.lbl2.configure(text=zeile2, font=('Arial', 16, "bold"), bg="#212121")
+        self.lbl3.configure(text=zeile3, font=('Arial', 16, "bold"), bg="#212121")
 
         btn = tk.Button(self)
-        btn.configure(text="Let's Go!", font=('Arial', 12), borderwidth="0")
+        btn.configure(text="Let's Go!", font=('Arial', 12, "bold"), borderwidth="0")
         btn.configure(bg="#212121", activebackground="#ff6666", foreground="#ffffff")
         btn.configure(command=lambda: master.switch_frame(PageOne))
         btn.place(relx=0.331, rely=0.731, height=71, width=201)
@@ -66,17 +83,26 @@ class PageOne(tk.Frame):
         lbl.configure(foreground="#ffffff")
         lbl.place(relx=0.066, rely=0.088, height=83, width=519)
 
-        Beschreibung = "Zeig mir deine aktuelle Stimmung.\nDie Kamera befindet sich ueber dem Display."
+        self.lbl1 = tk.Label(master)
+        self.lbl1.configure(background="#212121")
+        self.lbl1.configure(borderwidth="0")
+        self.lbl1.configure(foreground="#ffffff")
+        self.lbl1.place(relx=0.066, rely=0.344, height=43, width=519)
 
-        T = tk.Text(self)
-        T.configure(font=('Arial',12), bg="#212121", borderwidth="0")
-        T.configure(foreground="#ffffff")
-        T.configure(wrap="word")
-        T.insert("1.0", Beschreibung)
-        T.place(relx=0.083, rely=0.329, relheight=0.34, relwidth=0.821)
+        self.lbl2 = tk.Label(master)
+        self.lbl2.configure(background="#212121")
+        self.lbl2.configure(borderwidth="0")
+        self.lbl2.configure(foreground="#ffffff")
+        self.lbl2.place(relx=0.066, rely=0.43, height=43, width=519)
+
+        zeile1 = "Zeig mir deine aktuelle Stimmung."
+        zeile2 = "Die Kamera befindet sich ueber dem Display."
+
+        self.lbl1.configure(text=zeile1, font=('Arial', 16, "bold"), bg="#212121")
+        self.lbl2.configure(text=zeile2, font=('Arial', 16, "bold"), bg="#212121")
 
         btn = tk.Button(self)
-        btn.configure(text="Weiter", font=('Arial', 12), borderwidth="0")
+        btn.configure(text="Weiter", font=('Arial', 12, "bold"), borderwidth="0")
         btn.configure(bg="#212121", activebackground="#ff6666", foreground="#ffffff")
         btn.configure(command=lambda:master.switch_frame(PageTwo))
         btn.place(relx=0.331, rely=0.731, height=71, width=201)
@@ -101,13 +127,13 @@ class PageTwo(tk.Frame):
         self.lbl2.place(relx=0.310, rely=0.409, height=141, width=220)
 
         self.btn = tk.Button(master)
-        self.btn.configure(text="Bereit!", font=('Arial', 12), borderwidth="0")
+        self.btn.configure(text="Bereit!", font=('Arial', 12, "bold"), borderwidth="0")
         self.btn.configure(bg="#212121", activebackground="#ff6666", foreground="#ffffff")
         self.btn.configure(command=self.routineStart)
         self.btn.place(relx=0.331, rely=0.731, height=71, width=201)
 
         self.btn2 = tk.Button(master)
-        self.btn2.configure(text="Weiter", font=('Arial', 12), borderwidth="0")
+        self.btn2.configure(text="Weiter", font=('Arial', 12, "bold"), borderwidth="0")
         self.btn2.configure(bg="#216870", activebackground="#ff6666", foreground="#ffffff")
         self.btn2.configure(command=lambda:master.switch_frame(PageThree))
        
@@ -134,17 +160,26 @@ class PageThree(tk.Frame):
         lbl.configure(foreground="#ffffff")
         lbl.place(relx=0.066, rely=0.088, height=83, width=519)
 
-        Beschreibung = "Finde heraus wie viel Alkohol du schon intus hast und\npuste in das Roehrchen neben der Kamera."
+        self.lbl1 = tk.Label(master)
+        self.lbl1.configure(background="#212121")
+        self.lbl1.configure(borderwidth="0")
+        self.lbl1.configure(foreground="#ffffff")
+        self.lbl1.place(relx=0.066, rely=0.344, height=43, width=519)
 
-        T = tk.Text(self)
-        T.configure(font=('Arial',12), bg="#212121", borderwidth="0")
-        T.configure(foreground="#ffffff")
-        T.configure(wrap="word")
-        T.insert("1.0", Beschreibung)
-        T.place(relx=0.083, rely=0.329, relheight=0.34, relwidth=0.821)
+        self.lbl2 = tk.Label(master)
+        self.lbl2.configure(background="#212121")
+        self.lbl2.configure(borderwidth="0")
+        self.lbl2.configure(foreground="#ffffff")
+        self.lbl2.place(relx=0.066, rely=0.43, height=43, width=519)
+
+        zeile1 = "Finde heraus wie viel Alkohol du schon intus hast"
+        zeile2 = "und puste in das Roehrchen neben der Kamera."
+
+        self.lbl1.configure(text=zeile1, font=('Arial', 16, "bold"), bg="#212121")
+        self.lbl2.configure(text=zeile2, font=('Arial', 16, "bold"), bg="#212121")
 
         btn = tk.Button(self)
-        btn.configure(text="Weiter", font=('Arial', 12), borderwidth="0")
+        btn.configure(text="Weiter", font=('Arial', 12, "bold"), borderwidth="0")
         btn.configure(bg="#212121", activebackground="#ff6666", foreground="#ffffff")
         btn.configure(command=lambda:master.switch_frame(PageFour))
         btn.place(relx=0.331, rely=0.731, height=71, width=201)
@@ -169,13 +204,13 @@ class PageFour(tk.Frame):
         self.lbl2.place(relx=0.310, rely=0.409, height=141, width=220)
 
         self.btn = tk.Button(master)
-        self.btn.configure(text="Bereit!", font=('Arial', 12), borderwidth="0")
+        self.btn.configure(text="Bereit!", font=('Arial', 12, "bold"), borderwidth="0")
         self.btn.configure(bg="#212121", activebackground="#ff6666", foreground="#ffffff")
         self.btn.configure(command=self.routineStart)
         self.btn.place(relx=0.331, rely=0.731, height=71, width=201)
 
         self.btn2 = tk.Button(master)
-        self.btn2.configure(text="Weiter", font=('Arial', 12), borderwidth="0")
+        self.btn2.configure(text="Weiter", font=('Arial', 12, "bold"), borderwidth="0")
         self.btn2.configure(bg="#216870", activebackground="#ff6666", foreground="#ffffff")
         self.btn2.configure(command=lambda:master.switch_frame(PageFive))
        
@@ -223,25 +258,25 @@ class PageFive(tk.Frame):
         auswahlC = "Auswahl C"
 
         self.btn1 = tk.Button(master)
-        self.btn1.configure(text=auswahlA, font=('Arial', 12), borderwidth="0")
+        self.btn1.configure(text=auswahlA, font=('Arial', 12, "bold"), borderwidth="0")
         self.btn1.configure(bg="#212121", activebackground="#ff6666", foreground="#ffffff")
         self.btn1.configure(command=self.drinkA)
         self.btn1.place(relx=0.083, rely=0.645, height=71, width=141)
  
         self.btn2 = tk.Button(master)
-        self.btn2.configure(text=auswahlB, font=('Arial', 12), borderwidth="0")
+        self.btn2.configure(text=auswahlB, font=('Arial', 12, "bold"), borderwidth="0")
         self.btn2.configure(bg="#212121", activebackground="#ff6666", foreground="#ffffff")
         self.btn2.configure(command=self.drinkB)
         self.btn2.place(relx=0.38, rely=0.645, height=71, width=141)
 
         self.btn3 = tk.Button(master)
-        self.btn3.configure(text=auswahlC, font=('Arial', 12), borderwidth="0")
+        self.btn3.configure(text=auswahlC, font=('Arial', 12, "bold"), borderwidth="0")
         self.btn3.configure(bg="#212121", activebackground="#ff6666", foreground="#ffffff")
         self.btn3.configure(command=self.drinkC)
         self.btn3.place(relx=0.678, rely=0.645, height=71, width=141)
     
         self.btn4 = tk.Button(master)
-        self.btn4.configure(text="Weiter", font=('Arial', 12), borderwidth="0")
+        self.btn4.configure(text="Weiter", font=('Arial', 12, "bold"), borderwidth="0")
         self.btn4.configure(bg="#216870", activebackground="#ff6666", foreground="#ffffff")
         self.btn4.configure(command=lambda:master.switch_frame(PageSix))
 
@@ -286,7 +321,7 @@ class PageSix(tk.Frame):
         lbl2.place(relx=0.066, rely=0.366, height=43, width=519)
 
         self.btn = tk.Button(master)
-        self.btn.configure(text="Danke", font=('Arial', 12), borderwidth="0")
+        self.btn.configure(text="Danke", font=('Arial', 12, "bold"), borderwidth="0")
         self.btn.configure(bg="#212121", activebackground="#ff6666", foreground="#ffffff")
         self.btn.configure(command=lambda:master.switch_frame(StartPage))
         self.btn.place(relx=0.331, rely=0.731, height=71, width=201)
