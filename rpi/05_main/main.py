@@ -122,9 +122,12 @@ class PageTwo(tk.Frame):
         self.lbl2.configure(activebackground="#f9f9f9")
         self.lbl2.configure(background="#212121")
         self.lbl2.configure(foreground="#ff6666")
-        self.lbl2.configure(font=('Arial',60), borderwidth="0")
+        self.lbl2.configure(font=('Arial',60))
         self.lbl2.configure(text="3")
         self.lbl2.place(relx=0.198, rely=0.344, height=141, width=350)
+
+        self.counter = tk.IntVar()
+        self.counter.set(3)
 
         self.btn = tk.Button(master)
         self.btn.configure(text="Bereit!", font=('Arial', 12, "bold"), borderwidth="0")
@@ -138,16 +141,22 @@ class PageTwo(tk.Frame):
         self.btn2.configure(command=lambda:master.switch_frame(PageThree))
        
     def routineStart(self):
-        stand = int(self.lbl2.cget('text'))
-        if stand > 0:
+        stand = int(self.counter.get())
+        if stand > 1:
             stand = stand - 1
             self.lbl2.configure(text=str(stand))
+            self.counter.set(stand)
             self.lbl2.after(1000, self.routineStart)
-        elif stand == 0:
+        elif stand == 1:
+            stand = stand - 1
+            self.lbl2.configure(text="Messung läuft", font=('Arial',24))
+            self.counter.set(stand)
+            self.lbl2.after(1000, self.routineStart)
+        else:
             emotions.emotionDetection()
             self.btn.place_forget()
             self.btn2.place(relx=0.331, rely=0.731, height=71, width=201)
-            self.lbl2.configure(text="Messung fertig", font=('Arial',24))
+            self.lbl2.configure(text="Messung fertig")
 
 class PageThree(tk.Frame):    
     def __init__(self, master):
@@ -209,23 +218,31 @@ class PageFour(tk.Frame):
         self.btn.configure(command=self.routineStart)
         self.btn.place(relx=0.331, rely=0.731, height=71, width=201)
 
+        self.counter = tk.IntVar()
+        self.counter.set(3)
+
         self.btn2 = tk.Button(master)
         self.btn2.configure(text="Weiter", font=('Arial', 12, "bold"), borderwidth="0")
         self.btn2.configure(bg="#216870", activebackground="#ff6666", foreground="#ffffff")
         self.btn2.configure(command=lambda:master.switch_frame(PageFive))
-       
+
     def routineStart(self):
-        stand = int(self.lbl2.cget('text'))
-        if stand > 0:
+        stand = int(self.counter.get())
+        if stand > 1:
             stand = stand - 1
             self.lbl2.configure(text=str(stand))
+            self.counter.set(stand)
             self.lbl2.after(1000, self.routineStart)
-        elif stand == 0:
+        elif stand == 1:
             # ARDUINO MEASUREMENT
+            stand = stand - 1
+            self.lbl2.configure(text="Messung läuft", font=('Arial',24))
+            self.counter.set(stand)
+            self.lbl2.after(1000, self.routineStart)
+        else:
             self.btn.place_forget()
             self.btn2.place(relx=0.331, rely=0.731, height=71, width=201)
-            self.lbl2.configure(text="Messung fertig", font=('Arial',24))
-
+            self.lbl2.configure(text="Messung fertig")
 
 class PageFive(tk.Frame):
     def __init__(self, master):
