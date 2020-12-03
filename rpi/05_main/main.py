@@ -17,18 +17,18 @@ except ImportError:
 class barkeeperApp(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
-        self._frame = None
+        self._Frame = None
         self.geometry("600x450+676+145")
         self.title("Barkeeper 4.0")
-        self.configure(background="#212121")
-        self.switch_frame(pageOne)
+        self.configure(bg="#212121")
+        self.switchFrame(pageOne)
 
-    def switch_frame(self, frame_class):
-        new_frame = frame_class(self)
-        if self._frame is not None:
-            self._frame.destroy()
-        self._frame = new_frame
-        self._frame.place(relx=0.0, rely=0.0, relheight=1,relwidth=1)
+    def switchFrame(self, frameClass):
+        newFrame = frameClass(self)
+        if self._Frame is not None:
+            self._Frame.destroy()
+        self._Frame = newFrame
+        self._Frame.place(relx=0.0, rely=0.0, relheight=1,relwidth=1)
 
 class pageOne(tk.Frame):
     def __init__(self, master):
@@ -65,7 +65,7 @@ class pageOne(tk.Frame):
         self.btn.configure(text="Let's Go!", font=('Arial', 12, "bold"))
         self.btn.configure(bg="#212121",activebackground="#ff6666")
         self.btn.configure(foreground="#ffffff")
-        self.btn.configure(command=lambda: master.switch_frame(pageTwo))
+        self.btn.configure(command=lambda: master.switchFrame(pageTwo))
         self.btn.place(relx=0.331, rely=0.731, height=71, width=201)
 
 class pageTwo(tk.Frame):    
@@ -96,7 +96,7 @@ class pageTwo(tk.Frame):
         self.btn = tk.Button(master)
         self.btn.configure(text="Weiter", font=('Arial', 12, "bold"))
         self.btn.configure(bg="#212121", activebackground="#ff6666", fg="#ffffff")
-        self.btn.configure(command=lambda:master.switch_frame(pageThree))
+        self.btn.configure(command=lambda:master.switchFrame(pageThree))
         self.btn.place(relx=0.331, rely=0.731, height=71, width=201)
 
 class pageThree(tk.Frame):    
@@ -129,7 +129,7 @@ class pageThree(tk.Frame):
         self.btn2 = tk.Button(master)
         self.btn2.configure(text="Weiter", font=('Arial', 12, "bold"))
         self.btn2.configure(bg="#216870", activebackground="#ff6666", fg="#ffffff")
-        self.btn2.configure(command=lambda:master.switch_frame(pageFour))
+        self.btn2.configure(command=lambda:master.switchFrame(pageFour))
       
     # starting the emotion detection after a countdown of 3 seconds
     def startRoutine(self):
@@ -179,7 +179,7 @@ class pageFour(tk.Frame):
         self.btn = tk.Button(master)
         self.btn.configure(text="Weiter", font=('Arial', 12, "bold"))
         self.btn.configure(bg="#212121", activebackground="#ff6666", fg="#ffffff")
-        self.btn.configure(command=lambda:master.switch_frame(pageFive))
+        self.btn.configure(command=lambda:master.switchFrame(pageFive))
         self.btn.place(relx=0.331, rely=0.731, height=71, width=201)
 
 class pageFive(tk.Frame):    
@@ -212,7 +212,7 @@ class pageFive(tk.Frame):
         self.btn2 = tk.Button(master)
         self.btn2.configure(text="Weiter", font=('Arial', 12, "bold"))
         self.btn2.configure(bg="#216870", activebackground="#ff6666", fg="#ffffff")
-        self.btn2.configure(command=lambda:master.switch_frame(pageSix))
+        self.btn2.configure(command=lambda:master.switchFrame(pageSix))
 
     # starting the alcohol detection after a countdown of 3 seconds
     def startRoutine(self):
@@ -304,7 +304,7 @@ class pageSix(tk.Frame):
         self.btn4 = tk.Button(master)
         self.btn4.configure(text="Weiter", font=('Arial', 12, "bold"))
         self.btn4.configure(bg="#216870", activebackground="#ff6666", fg="#ffffff")
-        self.btn4.configure(command=lambda:master.switch_frame(pageSeven))
+        self.btn4.configure(command=lambda:master.switchFrame(pageSeven))
 
     def drinkA(self):
         self.btn1.place_forget()
@@ -349,7 +349,7 @@ class pageSeven(tk.Frame):
         self.btn = tk.Button(master)
         self.btn.configure(text="Danke", font=('Arial', 12, "bold"))
         self.btn.configure(bg="#212121", activebackground="#ff6666", fg="#ffffff")
-        self.btn.configure(command=lambda:master.switch_frame(pageOne))
+        self.btn.configure(command=lambda:master.switchFrame(pageOne))
         self.btn.place(relx=0.331, rely=0.731, height=71, width=201)
 
 if __name__ == "__main__":
