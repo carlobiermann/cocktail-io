@@ -1,7 +1,6 @@
 import os
 import sys
 import time
-import subprocess
 import cv2
 import numpy as np
 from tensorflow.keras.layers import (Conv2D, Dense, Dropout, Flatten,MaxPooling2D)
@@ -36,7 +35,9 @@ def emotionDetection():
     # prevents openCL usage and unnecessary logging messages
     cv2.ocl.setUseOpenCL(False)
     
-    emotions = []
+    # empty array will be filled every time an emotion gets detected
+    emotionsArr = []
+
     cap = cv2.VideoCapture(0)
     
     #run loop for 10 seconds
@@ -49,9 +50,9 @@ def emotionDetection():
         if not ret:
             break
 
-        facecasc = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+        faceCasc = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faces = facecasc.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5)
+        faces = faceCasc.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5)
 
         # detect emotions and assign emotion indices to an array
         for (x, y, w, h) in faces:
@@ -59,10 +60,10 @@ def emotionDetection():
             roi_gray = gray[y:y + h, x:x + w]
             cropped_img = np.expand_dims(np.expand_dims(cv2.resize(roi_gray, (48, 48)), -1), 0)
             prediction = model.predict(cropped_img)
-            maxindex = int(np.argmax(prediction))
+            maxIndex = int(np.argmax(prediction))
             # collecting emotions in an array
-            emotions.append(maxindex)
+            emotionsArr.append(maxIndex)
 
     cap.release()
     cv2.destroyAllWindows()
-    print(emotions)
+    return emotionsArr

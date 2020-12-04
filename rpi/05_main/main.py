@@ -145,7 +145,8 @@ class pageThree(tk.Frame):
             self.counter.set(state)
             self.lbl.after(100, self.startRoutine)
         else:
-            emotions.emotionDetection()
+            emoData = emotions.emotionDetection()
+            print(emoData)
             self.btn1.place_forget()
             self.btn2.place(relx=0.331, rely=0.731, height=71, width=201)
             self.lbl.configure(text="Messung fertig")
