@@ -13,7 +13,7 @@ training_epoch = 1
 debug_mode = 0
 
 path_to_trainingsdata = "cocktail_dataset\cocktail_training_data_random.csv"
-path_to_debugdata = "mnist_dataset\mnist_test_10.csv"
+path_to_debugdata = "" #only needed for debugging
 
 serverip = "localhost"
 port = 10000
