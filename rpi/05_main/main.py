@@ -1,5 +1,6 @@
 import sys
 import emotions
+import arduinoI2C
 
 
 try: 
@@ -229,10 +230,13 @@ class pageFive(tk.Frame):
             self.counter.set(state)
             self.lbl.after(100, self.startRoutine)
         else:
-            # arduino alcohol detection
+            # arduino alcohol/sensor detection
+            sensorData = arduinoI2C.readSensors() 
+            print(sensorData)
             self.btn1.place_forget()
             self.btn2.place(relx=0.331, rely=0.731, height=71, width=201)
             self.lbl.configure(text="Messung fertig")
+            # send all data to NN
 
 class pageSix(tk.Frame):
     def __init__(self, master):
@@ -245,11 +249,14 @@ class pageSix(tk.Frame):
         self.heading.configure(bg="#212121", fg="#ffffff")
         self.heading.place(relx=0.017, rely=0.043, height=73, width=579)
 
-        # dummy input from neural network
+        # wait for return from function that analyzes emotion/alcohol data 
+        # and puts them into moods and levels of intoxication as strings
+
+        # dummy input from said function
         Stimmung = "heiter"
         StimmungText = "Deine Stimmung ist " + Stimmung + "."
        
-        # dummy input from neural network
+        # dummy input from said function
         Pegel = "Einer geht noch!"
         PegelText = "Dein Pegel sagt: '" + Pegel + "'"
         
@@ -314,6 +321,7 @@ class pageSix(tk.Frame):
         self.btn4.place(relx=0.38, rely=0.559, height=71, width=141)
         print("Drink A")
         #SEND TO ARDUINO 
+        arduinoI2C.sendDrink(1)
     
     def drinkB(self): 
         self.btn1.place_forget()
@@ -322,6 +330,7 @@ class pageSix(tk.Frame):
         self.btn4.place(relx=0.38, rely=0.559, height=71, width=141)
         print("Drink B")
         #SEND TO ARDUINO
+        arduinoI2C.sendDrink(2)
 
     def drinkC(self):
         self.btn1.place_forget()
@@ -330,6 +339,7 @@ class pageSix(tk.Frame):
         self.btn4.place(relx=0.38, rely=0.559, height=71, width=141)
         print("Drink C")
         #SEND TO ARDUINO
+        arduinoI2C.sendDrink(3)
 
 class pageSeven(tk.Frame):    
     def __init__(self, master):
