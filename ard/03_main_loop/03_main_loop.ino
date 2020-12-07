@@ -4,8 +4,9 @@
 /////////////////////////////////////////////
 
 //how much ml troughput per minute CHANGE HERE!
-#define mlinm = 100;
-#define mlins = (mlinm/60);
+#define measurement_time = 100//time ml in seconds
+#define measurment_ml = 10//ml in time
+#define mlins = (measurment_ml/mesurement_time);
 #define mlinms = (mlins/1000);
 
 //define I/O pins
@@ -90,6 +91,7 @@ void loop() {
   switch (choosenCocktail) {
     //switch case for make the right cocktail
     case 0:
+      Serial.println("Gin Tonic, fuck yeah!");
       getin(ginPin, 40, tonicPin, 160);
       //...
     case 1:
