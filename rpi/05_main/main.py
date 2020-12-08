@@ -19,10 +19,18 @@ class barkeeperApp(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self._Frame = None
-        self.geometry("600x450+676+145")
+        self.attributes("-fullscreen", True)
+        self.bind("<Escape>", self.endFullscreen)
+    
+        self.geometry("800x480")
         self.title("Barkeeper 4.0")
         self.configure(bg="#212121")
         self.switchFrame(pageOne)
+   
+    def endFullscreen(self, event=None):
+        self.state = False
+        self.attributes("-fullscreen", False)
+        return "break"
 
     def switchFrame(self, frameClass):
         newFrame = frameClass(self)
