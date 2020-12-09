@@ -13,5 +13,5 @@ Emotion and sensor data will then be send to a neural network located on a compu
 The output of the neural network is a drink recipe which the user will decide on whether they'll choose it or not. Their 
 choice will also be fed back into the neural network, improving its algorithm.
 
-Ultimately, the users *drink choice* will trigger the *drink mixing routine* which is controlled by the arduino and it's connected pumps.
+Ultimately, the users *drink choice* will trigger the *drink mixing routine* which is controlled by the arduino and it's connected valves.
 
