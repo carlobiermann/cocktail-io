@@ -172,14 +172,14 @@ class nnclient:
                     self.sock.close()   
  
 
-client = nnclient("localhost", 10000)
-ran_floats = [random.randrange(6) for _ in range(100)]
-temp_temperature = random.randrange(20)+10
-print("temp", temp_temperature)
-temp_alc = random.randrange(75)
-print("alc", temp_alc)
-array_values_emotions = ran_floats#[0,1,2,3,4,5,6,0,1,4,3,4,5,7,0,6,5,4,3,2,1,0,2,1,3,4,5,3,2,4,1,3,3,5,2,1,2,4]
-data_query = client.formatdata(temp_temperature, temp_alc, array_values_emotions)
-nnvalues = client.senddata(data_query,"query", 1024)
-time.sleep(2)
-client.senddata(nnvalues[random.randrange(3)],"training", 1024)
+#client = nnclient("localhost", 10000)
+#ran_floats = [random.randrange(6) for _ in range(100)]
+#temp_temperature = random.randrange(20)+10
+#print("temp", temp_temperature)
+#temp_alc = random.randrange(75)
+#print("alc", temp_alc)
+#array_values_emotions = ran_floats#[0,1,2,3,4,5,6,0,1,4,3,4,5,7,0,6,5,4,3,2,1,0,2,1,3,4,5,3,2,4,1,3,3,5,2,1,2,4]
+#data_query = client.formatdata(temp_temperature, temp_alc, array_values_emotions)
+#nnvalues = client.senddata(data_query,"query", 1024)
+#time.sleep(2)
+#client.senddata(nnvalues[random.randrange(3)],"training", 1024)
