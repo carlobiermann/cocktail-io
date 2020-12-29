@@ -41,4 +41,4 @@ The box casing is planned to be made of sheet metal and will hold the 8 liquor a
 
 Below you'll find the current architecture of the cocktailmaker and its dataflow.
 
-![architecture](https://github.com/carlobiermann/cocktail-io/pics/architecture.jpg)
+![architecture](https://https://github.com/carlobiermann/cocktail-io/blob/master/pics/architecture.jpg)
