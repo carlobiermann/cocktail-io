@@ -33,7 +33,7 @@ The box casing is planned to be made of sheet metal and will hold the 8 liquor a
 4. ANN __processes data__ and outputs three  __drink recommendations__.
 5. Three drink recommendations get __displayed__ on the GUI.
 6. User __selects one__ of the three drinks. 
-7. Routine starts to __create__ the __selected drinks__ via control of the valves.
+7. Routine starts to __create__ the __selected drink__ via control of the valves.
 8. ANN is __trained__ with the selected drink.
 9. Program starts from the __beginning__.
 
