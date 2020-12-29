@@ -2,7 +2,7 @@
 
 __DISCLAIMER:__ This project is part of an ongoing graduate course at the HTW Berlin.
 
-## Table of Contents
+## Table of contents
 
 - [Intro](#intro)
   * [Hardware](#hardware)
