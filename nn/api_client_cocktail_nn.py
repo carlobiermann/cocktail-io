@@ -194,7 +194,6 @@ client = nnclient("localhost", 10000)
 data_query = client.formatdata(128, 255, 34, 0,[4,5,6,3,2,1,3,4,5,3,2,3,4,2,1,3,5,6,6,6,6,6])
 nnvalues = client.senddata(data_query, "query", 1024)
 time.sleep(2)
-<<<<<<< HEAD
 client.senddata(nnvalues[random.randrange(3)], "training", 1024)
 
 # #ran_floats = [random.randrange(6) for _ in range(100)]
@@ -207,6 +206,3 @@ client.senddata(nnvalues[random.randrange(3)], "training", 1024)
 # nnvalues = client.senddata(data_query,"query", 1024)
 # time.sleep(2)
 # client.senddata(nnvalues[random.randrange(3)],"training", 1024)
-=======
-client.senddata(nnvalues[random.randrange(3)],"training", 1024)
->>>>>>> 426b22868d04eb270820e95da5703fb24a70a6f1
