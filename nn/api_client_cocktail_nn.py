@@ -1,4 +1,4 @@
-# Paying around with socket programm based on the code from PyMOTW found here: https://pymotw.com/3/socket/tcp.html
+# Playing around with socket programm based on the code from PyMOTW found here: https://pymotw.com/3/socket/tcp.html
 import socket
 import sys
 import time
@@ -13,42 +13,56 @@ class nnclient:
             self.port = port      
 
     #format the data for sending to nn 
-    def formatdata(self, val_alc, val_temp, values_emotions):
+    def formatdata(self, val_temp, val_alc, val_dist, val_hum, values_emotions):
 
         #TO-DO Verify val_alc format
 
         #############################################
-        # val_temp has to: single int C° value
-        # val_alc has to : single int 
+        #
+        # scaling params to 8bit in arduino for clear data line
+        #
+        # val_dist has to: 0-255
+        # val_hum has to: 0-255
+        # val_temp has to: 0-255
+        # val_alc has to : 0-255
         # values_emotions has to: list of ints 0 - 6
         ##############################################
 
+        self.value_hum = val_hum
+        self.value_dist = val_dist
         self.value_alc = val_alc
         self.value_temp = val_temp
         self.values_emotions = values_emotions
-        self.message = [0,1,2,3]
+        self.message = [0,1,2,3,4]
         
-        ##############################################
-        # scaling with syntax
-        # NewValue = (((OldValue - OldMin) * NewRange) / OldRange) + NewMin
-        ##############################################
+        # OLD - if nn need to convert#
+        # ##############################################
+        # # scaling with syntax
+        # # NewValue = (((OldValue - OldMin) * NewRange) / OldRange) + NewMin
+        # ##############################################
 
-        ##############################################
-        # DS18B20 - temp - Operating: -55C° ~ 125C° ##
-        ##############################################
-        self.scaled_value_temp = int((((self.value_temp - (-55)) * 255) / 180) + 0) 
+        # ##############################################
+        # # DS18B20 - temp - Operating: -55C° ~ 125C° ##
+        # ##############################################
+        # self.scaled_value_temp = int((((self.value_temp - (-55)) * 255) / 180) + 0) 
+        #
+        # OLD - end        
 
         ###############################################
         # FORMAT SENDING DATA 
         # a[0] = 0 (verify!)
         # a[1] = temp
         # a[2] = alcohol
-        # a[3...] = data emotions z.B. 1, 1, 3, 1, 5, ....
+        # a[3] = distance
+        # a[4] = humidity
+        # a[5...] = data emotions z.B. 1, 1, 3, 1, 5, ....
         ###############################################
         
         self.message[0]=0
-        self.message[1]=self.scaled_value_temp
+        self.message[1]=self.value_temp
         self.message[2]=self.value_alc
+        self.message[3]=self.value_dist
+        self.message[4]=self.value_hum
         self.message.extend(values_emotions)
 
         return self.message
@@ -60,10 +74,14 @@ class nnclient:
 
         if (max(self.values_emotions) > 6) or (min(self.values_emotions) < 0):
             raise Exception("false params at emotions values.")
-        if (self.value_temp > 125) or (self.value_temp < -55):
+        if (self.value_temp > 255) or (self.value_temp < 0):
             raise Exception("false params at temperature.")
-        if (self.value_alc > 125) or (self.value_alc < -55):
+        if (self.value_alc > 255) or (self.value_alc < 0):
             raise Exception("false params at alcohol-meter.")
+        if (self.value_hum > 255) or (self.value_hum < 0):
+            raise Exception("false params at humidity.")
+        if (self.value_dist > 255) or (self.value_dist < 0):
+            raise Exception("false params at distance.")
 
     #send data to server and get answer
     def senddata(self, message, mode, buffersize):
@@ -173,13 +191,18 @@ class nnclient:
  
 
 client = nnclient("localhost", 10000)
-ran_floats = [random.randrange(6) for _ in range(100)]
-temp_temperature = random.randrange(20)+10
-print("temp", temp_temperature)
-temp_alc = random.randrange(75)
-print("alc", temp_alc)
-array_values_emotions = ran_floats#[0,1,2,3,4,5,6,0,1,4,3,4,5,7,0,6,5,4,3,2,1,0,2,1,3,4,5,3,2,4,1,3,3,5,2,1,2,4]
-data_query = client.formatdata(temp_temperature, temp_alc, array_values_emotions)
-nnvalues = client.senddata(data_query,"query", 1024)
+data_query = client.formatdata(128, 255, 34, 0,[4,5,6,3,2,1,3,4,5,3,2,3,4,2,1,3,5,6,6,6,6,6])
+nnvalues = client.senddata(data_query, "query", 1024)
 time.sleep(2)
-client.senddata(nnvalues[random.randrange(3)],"training", 1024)
+client.senddata(nnvalues[random.randrange(3)], "training", 1024)
+
+# #ran_floats = [random.randrange(6) for _ in range(100)]
+# #temp_temperature = random.randrange(20)+10
+# #print("temp", temp_temperature)
+# #temp_alc = random.randrange(75)
+# #print("alc", temp_alc)
+# array_values_emotions = ran_floats#[0,1,2,3,4,5,6,0,1,4,3,4,5,7,0,6,5,4,3,2,1,0,2,1,3,4,5,3,2,4,1,3,3,5,2,1,2,4]
+# data_query = client.formatdata(temp_temperature, temp_alc, array_values_emotions)
+# nnvalues = client.senddata(data_query,"query", 1024)
+# time.sleep(2)
+# client.senddata(nnvalues[random.randrange(3)],"training", 1024)

@@ -5,13 +5,13 @@ import random
 import os
 import csv
 
-input_nodes = 87
+input_nodes = 89
 
 path_to_trainingsdata = "cocktail_dataset//cocktail_training_data_random.csv"
 script_dir = os.path.dirname(__file__)
 int_data_path = os.path.join(script_dir, path_to_trainingsdata)
 
-for x in range(1000):
+for x in range(100):
     ran_list = [random.uniform(0,1) for _ in range(input_nodes)]
     ran_list.insert(0, random.randrange(10))
 

@@ -4,7 +4,7 @@
 ##########################################################
 
 ## Define the NN ##
-input_nodes = 87              #must!: input_nodes -7 / 8 = int
+input_nodes = 89              #must!: input_nodes -8 / 9 = int
 hidden_nodes = 25
 output_nodes = 10
 learning_rate  = 0.3
@@ -211,19 +211,24 @@ def sortingdata(data, val_time, input_nodes):
     # input_array[0] = 0 for syntax check
     # input_array[1] = value temperature scaled 0-255
     # input_array[2] = value alcohol scaled 0-255
-    # input_array[3...] = value emotions 0-6
+    # input_array[3] = value distance scaled 0-255
+    # input_array[4] = value humidity scaled 0-255
+    # input_array[5...] = value emotions 0-6
     #
     # Weigth of the input params
     # temp - single
     # time - single
-    # alc - >double dynamic
+    # humidity - single
+    # disctance - >double dynamic
+    # alc - >double dynamic 
     # emotions - >double dynamic
     ################################
-    return_values = [1,2,3,4,5,6,7]
 
     temp_data = ((data[1]/ 255.0) * 0.99) + 0.01
     alc_data = ((data[2]/ 255.0) * 0.99) + 0.01
-    emotions_data = data[3:]
+    dist_data = ((data[3]/ 255.0) * 0.99) + 0.01
+    hum_data = ((data[4]/ 255.0) * 0.99) + 0.01
+    emotions_data = data[5:]
     val_angry_0 = (emotions_data.count(0) / len(emotions_data)) + 0.01
     val_disgusted_1 = (emotions_data.count(1) / len(emotions_data)) + 0.01
     val_fearful_2 = (emotions_data.count(2) / len(emotions_data)) + 0.01
@@ -233,19 +238,22 @@ def sortingdata(data, val_time, input_nodes):
     val_surprised_6 = (emotions_data.count(6) / len(emotions_data)) + 0.01
 
     #packing emotion and alc data to list for multiple extend
-    val_emotionsandalc_list = [val_angry_0, val_disgusted_1, val_fearful_2, val_happy_3, val_neutral_4, val_sad_5, val_surprised_6, alc_data]
+    val_emotionsandalc_list = [val_angry_0, val_disgusted_1, val_fearful_2, val_happy_3, val_neutral_4, val_sad_5, val_surprised_6, alc_data, dist_data]
 
-    #get the rigth ordering
+    #get the rigth ordering and scaling the amount of input!
+    return_values = [1,2,3,4,5,6,7,8]
+
     return_values[0] = temp_data
-    return_values[1] = val_time[0]
-    return_values[2] = val_time[1]
-    return_values[3] = val_time[2]
-    return_values[4] = val_time[3]
-    return_values[5] = val_time[4]
-    return_values[6] = val_time[5]
+    return_values[1] = hum_data
+    return_values[2] = val_time[0]
+    return_values[3] = val_time[1]
+    return_values[4] = val_time[2]
+    return_values[5] = val_time[3]
+    return_values[6] = val_time[4]
+    return_values[7] = val_time[5]
 
     #adding emotion recognation and alc multiple for weigth of this params in dynamic of input nodes
-    range_high_border = (int((input_nodes-7)/8))+1
+    range_high_border = (int((input_nodes-8)/9))+1
 
     for x in range(1,range_high_border,1):
         return_values.extend(val_emotionsandalc_list)
