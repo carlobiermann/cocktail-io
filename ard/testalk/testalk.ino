@@ -133,21 +133,21 @@ void loop()
   Serial.println(alkVoltMax);
   Serial.println("over ");
 
-  //Umrechnung in 8Bit, Wertebereich von 0 bis 256
-  //Temperatur: 0° entspricht 0, 40° entspricht 256
-  //Luftfeuchtigkeit: 0% entspricht 0, 100% entspricht 256
-  //Abstand: 0cm entspricht 0 und 50cm entspricht 256
-  //Alkohol in Volt: 0V entspricht 0 und 5V entspricht 256 
+  //Umrechnung in 8Bit, Wertebereich von 0 bis 255
+  //Temperatur: 0° entspricht 0, 40° entspricht 255, Hier wurde der realistische, NICHT der mögliche Wertebereich abgedeckt 
+  //Luftfeuchtigkeit: 0% entspricht 0, 100% entspricht 255
+  //Abstand: 0cm entspricht 0 und 50cm entspricht 255
+  //Alkohol in Volt: 0V entspricht 0 und 5V entspricht 255
 
-   tempMidBit= (tempMid/40)*256;  
-   humMidBit= (humMid/100)*256; 
-   alkVoltMaxBit= (alkVoltMax/5)*256; 
-   distanceMidBit= (distanceMid/50)*256; 
+   tempMidBit= (tempMid/40)*255;  
+   humMidBit= (humMid/100)*255; 
+   alkVoltMaxBit= (alkVoltMax/5)*255; 
+   distanceMidBit= (distanceMid/50)*255; 
 
    //Abstandsmessung wird nach einigen 50-100cm fehlerhaft(zu große Werte, über 20m) deswegen skalieren auf Max Wert
-   if (distanceMidBit>256)
+   if (distanceMidBit>255)
    {
-    distanceMidBit=256; 
+    distanceMidBit=255; 
    }
    
   Serial.print("DistanceMidBit:");
