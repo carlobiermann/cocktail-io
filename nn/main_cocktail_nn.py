@@ -3,19 +3,23 @@
 # main source: Make Your Own Neural Network Tariq Rashid #
 ##########################################################
 
-## Define the NN ##
-input_nodes = 89              #must!: input_nodes -8 / 9 = int
-hidden_nodes = 25
-output_nodes = 10
+## Define the weights / scaling of input Data in numeric parameters ##
+scale_hidden_nodes_in_percent = 12
+
+scale_temperature = 50
+scale_humidity = 50
+scale_alcohol = 300
+scale_distance = 200
+scale_emotions = 200
+scale_time = 75
+
 learning_rate  = 0.3
 training_epoch = 1
-
 debug_mode = 0
 
-path_to_trainingsdata = "cocktail_dataset\cocktail_training_data_random.csv"
 path_to_debugdata = "" #only needed for debugging
 
-serverip = "192.168.178.28"
+serverip = "localhost"
 port = 10000
 
 ##########################################################
@@ -29,29 +33,54 @@ import sys
 import time
 import struct
 import csv
+import random
 
 ##########################################################
 class cocktailapp:
     
     #init
-    def __init__(self, input_nodes, hidden_nodes, output_nodes, learning_rate, path_to_trainingsdata, training_epoch, path_to_debugdata, debug_mode):
+    def __init__(self, scale_temperature, scale_humidity, scale_alcohol, scale_distance, scale_emotions, scale_time, scale_hidden_nodes_in_percent, learning_rate, training_epoch, path_to_debugdata, debug_mode):
          
-        self.script_dir = os.path.dirname(__file__)
-        self.int_data_path = os.path.join(self.script_dir, path_to_trainingsdata)
-        self.path_to_debugdata = os.path.join(self.script_dir, path_to_debugdata)
-        self.path_to_wih = os.path.join(self.script_dir, "saved_wih.npy")
-        self.path_to_who = os.path.join(self.script_dir, "saved_who.npy")
-        
-        #installing new nn   
-        self.n = nn.neuralNetwork(input_nodes,hidden_nodes,output_nodes,learning_rate, self.path_to_wih, self.path_to_who)
+        print("Starting up Cocktailmaker Engine by Horizontal Joghurtz...")
 
-        #variables 
-        self.oonodes = output_nodes
+        #scaling variables
+        self.scale_temp = scale_temperature
+        self.scale_hum = scale_humidity
+        self.scale_alc = scale_alcohol
+        self.scale_dist = scale_distance
+        self.scale_emo = scale_emotions
+        self.scale_time = scale_time
+        self.scale_hidden = scale_hidden_nodes_in_percent
+
+        #computing params for input/hidden/outputnodes
+        self.c_input_nodes = ((self.scale_temp*1)+(self.scale_hum*1)+(self.scale_alc*1)+(self.scale_dist*1)+(self.scale_emo*7)+(self.scale_time*6))
+        self.c_hidden_nodes = int(self.c_input_nodes*(self.scale_hidden/100))
+        if self.c_hidden_nodes < 10:
+            self.c_hidden_nodes = 10 
+        self.c_output_nodes = 10
+
+        #setting up data container for these type of net
+        self.string_whi = ("saved_whi_%d_%d_%d.npy" % (self.c_input_nodes, self.c_hidden_nodes, self.c_output_nodes))
+        self.string_who = ("saved_who_%d_%d_%d.npy" % (self.c_input_nodes, self.c_hidden_nodes, self.c_output_nodes))
+        self.string_training_data = ("cocktail_training_data_random_%d_%d_%d.csv" % (self.c_input_nodes, self.c_hidden_nodes, self.c_output_nodes))
+
+        #other variables
+        self.script_dir = os.path.dirname(__file__)
+        self.path_to_debugdata = os.path.join(self.script_dir, path_to_debugdata)
+        self.path_to_wih = os.path.join(self.script_dir, self.string_whi)
+        self.path_to_who = os.path.join(self.script_dir, self.string_who)
+        self.path_to_training_dir = os.path.join(self.script_dir, self.string_training_data)
         self.training_epoch = training_epoch
         self.debug_mode = debug_mode
 
+        #installing new nn   
+        self.n = nn.neuralNetwork(self.c_input_nodes, self.c_hidden_nodes, self.c_output_nodes, learning_rate, self.path_to_wih, self.path_to_who)
+
         #says done, debugging
-        print("Put up Neuronal Net Body...") 
+        print("Put up Neuronal Net Body with following params...")
+        print("Input Nodes:", self.c_input_nodes)
+        print("Hidden Nodes:", self.c_hidden_nodes)
+        print("Hidden Nodes:", self.c_output_nodes)
 
     #train new nn with data
     def firsttrain(self):
@@ -64,14 +93,40 @@ class cocktailapp:
             f.close()
 
         except FileNotFoundError:
-            print("No trained net found. Training new one!")
-            #load the nn training data
-            self.training_data_file = open(self.int_data_path, "r")
-            self.training_data_list = self.training_data_file.readlines()
-            self.training_data_file.close()
-            print(len(self.training_data_list),"records in training files")
+            #check if training data already there
+            print("No trained net matching the params of nodes found. Looking for trainingdata...")
+            try:
+                f = open(self.path_to_training_dir, "r")
+                f.close()
+
+            except FileNotFoundError:
+                print("No trainingdata found. Generate random new one...")
+
+                for x in range(100):
+                    self.ran_list = [random.uniform(0,1) for _ in range(self.c_input_nodes)]
+                    self.ran_list.insert(0, random.randrange(10))
+
+                    with open(self.path_to_training_dir, 'a', newline='') as csvsavefile:
+                        wr = csv.writer(csvsavefile, quoting=csv.QUOTE_NONE)
+                        wr.writerow(self.ran_list)
+
+                    print(x)
+
+                self.training_data_file = open(self.path_to_training_dir, "r")
+                self.training_data_list = self.training_data_file.readlines()
+                self.training_data_file.close()
+                print(len(self.training_data_list),"records in training files")
+
+            else:
+                print("Load Trainingdata...")
+                #load the nn training data
+                self.training_data_file = open(self.path_to_training_dir, "r")
+                self.training_data_list = self.training_data_file.readlines()
+                self.training_data_file.close()
+                print(len(self.training_data_list),"records in training files")
 
             #how often trainingdata were used
+            print("Train new neural net...")
             for e in range(self.training_epoch):
                 #loop for every record
                 for record in self.training_data_list:
@@ -80,16 +135,14 @@ class cocktailapp:
                     #format record
                     self.all_values = record.split(',')
                     self.all_values_converted = []
-                   
+                
                     for element in self.all_values:
                         self.all_values_converted.append(float(element.strip('""\n')))
                     
                     #scale and shift the inputs
                     self.inputs = self.all_values_converted[1:]
                     #create the target output values (all 0.01, expect the desired label which is 0.99)
-                    self.targets = np.zeros(self.oonodes) + 0.01
-
-
+                    self.targets = np.zeros(self.c_output_nodes) + 0.01
 
                     #all_values[0] ist target label for this record
                     self.targets[int(self.all_values_converted[0])] = 0.99
@@ -150,7 +203,7 @@ class cocktailapp:
                 self.parking_sensor_data.insert(0, self.parking_user_input)
 
                 #write to training csv file
-                with open(self.int_data_path, 'a', newline='') as csvsavefile:
+                with open(self.string_training_data, 'a', newline='') as csvsavefile:
                     wr = csv.writer(csvsavefile, quoting=csv.QUOTE_ALL)
                     wr.writerow(self.parking_sensor_data)
 
@@ -205,7 +258,7 @@ def startingsocket(serverip, port):
     # Listen for incoming connections
     sock.listen(1)
 
-def sortingdata(data, val_time, input_nodes):
+def sortingdata(data, val_time, scale_temperature, scale_humidity, scale_alcohol, scale_distance, scale_emotions, scale_time):
     ################################
     # input format for data:
     # input_array[0] = 0 for syntax check
@@ -215,15 +268,11 @@ def sortingdata(data, val_time, input_nodes):
     # input_array[4] = value humidity scaled 0-255
     # input_array[5...] = value emotions 0-6
     #
-    # Weigth of the input params
-    # temp - single
-    # time - single
-    # humidity - single
-    # disctance - >double dynamic
-    # alc - >double dynamic 
-    # emotions - >double dynamic
+    # Weigth of the input params defined by user
+    # -> dynamic changing of the length of return_values / input_nodes
     ################################
 
+    #converting the input data to a value between 0.01 and 1
     temp_data = ((data[1]/ 255.0) * 0.99) + 0.01
     alc_data = ((data[2]/ 255.0) * 0.99) + 0.01
     dist_data = ((data[3]/ 255.0) * 0.99) + 0.01
@@ -238,33 +287,32 @@ def sortingdata(data, val_time, input_nodes):
     val_surprised_6 = (emotions_data.count(6) / len(emotions_data)) + 0.01
 
     #packing emotion and alc data to list for multiple extend
-    val_emotionsandalc_list = [val_angry_0, val_disgusted_1, val_fearful_2, val_happy_3, val_neutral_4, val_sad_5, val_surprised_6, alc_data, dist_data]
+    val_emotions_list = [val_angry_0, val_disgusted_1, val_fearful_2, val_happy_3, val_neutral_4, val_sad_5, val_surprised_6]
 
-    #get the rigth ordering and scaling the amount of input!
-    return_values = [1,2,3,4,5,6,7,8]
+    #"zero-array" for the return of the values
+    return_values = []
+            
+    #adding values to return_values in front of scaling
+    for x in range(1,(scale_temperature+1),1):
+        return_values.append(temp_data)
+    
+    for x in range(1,(scale_humidity+1),1):
+        return_values.append(hum_data)
+    
+    for x in range(1,(scale_alcohol+1),1):
+        return_values.append(alc_data)
+    
+    for x in range(1,(scale_distance+1),1):
+        return_values.append(dist_data)
+    
+    for x in range(1,(scale_emotions+1),1):
+        return_values.extend(val_emotions_list)
 
-    return_values[0] = temp_data
-    return_values[1] = hum_data
-    return_values[2] = val_time[0]
-    return_values[3] = val_time[1]
-    return_values[4] = val_time[2]
-    return_values[5] = val_time[3]
-    return_values[6] = val_time[4]
-    return_values[7] = val_time[5]
+    for x in range(1,(scale_time+1),1):
+        return_values.extend(val_time)
 
-    #adding emotion recognation and alc multiple for weigth of this params in dynamic of input nodes
-    range_high_border = (int((input_nodes-8)/9))+1
-
-    for x in range(1,range_high_border,1):
-        return_values.extend(val_emotionsandalc_list)
-
+    # return_values : list with 1 element for every input_node
     return return_values
-
-    ###########################
-    #
-    # return_values : list with 8 + range_high_boarder*8 elements
-    #
-    ###########################
 
 def checkiftraining(data):
     #checking if the data stream from client is training data or query data
@@ -277,7 +325,7 @@ def checkiftraining(data):
         raise Exception("cant process data from client")
 
 ##########################################################
-app = cocktailapp(input_nodes, hidden_nodes, output_nodes, learning_rate, path_to_trainingsdata, training_epoch, path_to_debugdata, debug_mode)
+app = cocktailapp(scale_temperature, scale_humidity, scale_alcohol, scale_distance, scale_emotions, scale_time, scale_hidden_nodes_in_percent, learning_rate, training_epoch, path_to_debugdata, debug_mode)
 startingsocket(serverip, port)
 app.firsttrain()
 #app.chkdebug()
@@ -306,7 +354,7 @@ try:
                     if (datatype == "query"):
 
                         val_time = app.getdate() 
-                        input_variables_to_nn = sortingdata(data,val_time,input_nodes)
+                        input_variables_to_nn = sortingdata(data, val_time, scale_temperature, scale_humidity, scale_alcohol, scale_distance, scale_emotions, scale_time)
                         app.retrain(input_variables_to_nn, "sensor_data") 
                         output_variables_from_nn = app.query(input_variables_to_nn)
                         print("sending answer....") 
