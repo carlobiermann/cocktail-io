@@ -8,18 +8,7 @@ address = 0x05
 
 def readSensors():
     # empty data array
-    data = []
-
-    # run loop for 10 seconds
-    timeout = time.time() + 10
-
-    while time.time() < timeout:
-        for i in range(0, 3):
-                #data.append(bus.read_byte(address))
-                val = bus.read_byte(address)
-                data.insert(i, val)
-        time.sleep(1)
-
+    data = bus.read_i2c_block_data(address, 99, 3);
     return data
 
 def sendDrink(drinkChoice):

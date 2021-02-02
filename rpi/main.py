@@ -1,8 +1,9 @@
 import sys
 import emotions
 import arduinoI2C
-import api_client_cocktail_nn as apiclient
+# import api_client_cocktail_nn as apiclient
 import random
+import time
 
 
 try: 
@@ -243,6 +244,8 @@ class pageFive(tk.Frame):
         else:
             # arduino alcohol/sensor detection
             global sensorData
+            arduinoI2C.sendDrink(11)
+            time.sleep(10)
             sensorData = arduinoI2C.readSensors() 
             print(sensorData)
             self.btn1.place_forget()
@@ -250,14 +253,14 @@ class pageFive(tk.Frame):
             self.lbl.configure(text="Messung fertig")
             
             # send all data to NN
-            client = apiclient.nnclient("localhost", 10000) # CHANGE TO IP
-            ran_floats = [random.randrange(6) for _ in range(100)]
-            temp_temperature = random.randrange(20)+10
-            print("temp", temp_temperature)
+            # client = apiclient.nnclient("192.168.178.28", 10000) # CHANGE TO IP
+            # ran_floats = [random.randrange(6) for _ in range(100)]
+            # temp_temperature = random.randrange(20)+10
+            # print("temp", temp_temperature)
             
             #client.formatdata(temp_temperature, sensorData, emoData)
-            data_query = client.formatdata(20, 12, emoData)
-            nnvalues = client.senddata(data_query,"query",1024)
+            # data_query = client.formatdata(20, 12, emoData)
+            # nnvalues = client.senddata(data_query,"query",1024)
 
         
 
@@ -342,7 +345,7 @@ class pageSix(tk.Frame):
         self.btn1.place_forget()
         self.btn2.place_forget()
         self.btn3.place_forget()
-        self.btn3.place(relx=0.05, rely=0.625, height=81, width=181)
+        self.btn4.place(relx=0.05, rely=0.625, height=81, width=181)
         print("Drink A")
         #SEND TO ARDUINO 
         arduinoI2C.sendDrink(1)
