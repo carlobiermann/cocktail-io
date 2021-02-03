@@ -34,6 +34,10 @@ class nnclient:
         self.value_temp = val_temp
         self.values_emotions = values_emotions
         self.message = [0,1,2,3,4]
+
+        #if emotion cant be detected
+        if self.values_emotions = []:
+            values_emotions = [0,1,2,3,4,5,6]
         
         # OLD - if nn need to convert#
         # ##############################################
@@ -150,44 +154,44 @@ class nnclient:
 
         elif mode == "training":
             #check if choosen cocktail is in range of answer from nn, if not, exception
-            if ((self.message in self.data) == False):
-                raise Exception("cant progress these trainingsdata - user cant choose these cocktail")
-            else:
-                #convert to byte array
-                self.choosencocktail_list = [0 , 0]
+            #if ((self.message in self.data) == False):
+             #   raise Exception("cant progress these trainingsdata - user cant choose these cocktail")
+            #else:
+            #convert to byte array
+            self.choosencocktail_list = [0 , 0]
 
-                self.choosencocktail_list[0] = 1
-                self.choosencocktail_list[1] = int(self.message)
-                self.message_training = bytearray(self.choosencocktail_list)
+            self.choosencocktail_list[0] = 1
+            self.choosencocktail_list[1] = int(self.message)
+            self.message_training = bytearray(self.choosencocktail_list)
 
-                try:
+            try:
 
-                    # Send data
-                    print('sending {!r}'.format(self.message_training))
-                    self.sock.sendall(self.message_training)
+                # Send data
+                print('sending {!r}'.format(self.message_training))
+                self.sock.sendall(self.message_training)
 
-                    #variable for exit while loop
-                    self.waitforreceive = 1
+                #variable for exit while loop
+                self.waitforreceive = 1
 
-                    while self.waitforreceive == 1:
-                        self.training_data = self.sock.recv(buffersize)
+                while self.waitforreceive == 1:
+                    self.training_data = self.sock.recv(buffersize)
 
-                        #return answer from server
-                        print("received...")
-                        print(self.training_data)
-                        return True
+                    #return answer from server
+                    print("received...")
+                    print(self.training_data)
+                    return True
 
-                        #intern exit for while lop
-                        if not(self.training_data) == 0:
-                            self.waitforreceive = 0
-                        else:
-                            pass
-                    
-                    self.waitforreceive = 1
-            
-                finally:
-                    print('closing socket')
-                    self.sock.close()   
+                    #intern exit for while lop
+                    if not(self.training_data) == 0:
+                        self.waitforreceive = 0
+                    else:
+                        pass
+                
+                self.waitforreceive = 1
+        
+            finally:
+                print('closing socket')
+                self.sock.close()   
  
 
 ran_floats = [random.randrange(6) for _ in range(50)]
