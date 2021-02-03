@@ -4,16 +4,16 @@
 ##########################################################
 
 ## Define the weights / scaling of input Data in numeric parameters ##
-scale_hidden_nodes_in_percent = 12
+scale_hidden_nodes_in_percent = 20
 
-scale_temperature = 50
-scale_humidity = 50
-scale_alcohol = 300
-scale_distance = 200
-scale_emotions = 200
-scale_time = 75
+scale_temperature = 10
+scale_humidity = 10
+scale_alcohol = 10
+scale_distance = 20
+scale_emotions = 30
+scale_time = 5
 
-learning_rate  = 0.3
+learning_rate  = 0.2
 training_epoch = 1
 debug_mode = 0
 
@@ -55,8 +55,8 @@ class cocktailapp:
         #computing params for input/hidden/outputnodes
         self.c_input_nodes = ((self.scale_temp*1)+(self.scale_hum*1)+(self.scale_alc*1)+(self.scale_dist*1)+(self.scale_emo*7)+(self.scale_time*6))
         self.c_hidden_nodes = int(self.c_input_nodes*(self.scale_hidden/100))
-        if self.c_hidden_nodes < 10:
-            self.c_hidden_nodes = 10 
+        #if self.c_hidden_nodes < 10:
+        #    self.c_hidden_nodes = 10 
         self.c_output_nodes = 10
 
         #setting up data container for these type of net
@@ -80,7 +80,7 @@ class cocktailapp:
         print("Put up Neuronal Net Body with following params...")
         print("Input Nodes:", self.c_input_nodes)
         print("Hidden Nodes:", self.c_hidden_nodes)
-        print("Hidden Nodes:", self.c_output_nodes)
+        print("Output Nodes:", self.c_output_nodes)
 
     #train new nn with data
     def firsttrain(self):
@@ -102,7 +102,8 @@ class cocktailapp:
             except FileNotFoundError:
                 print("No trainingdata found. Generate random new one...")
 
-                for x in range(100):
+                for x in range(10):
+                    self.ran_list_param = 1
                     self.ran_list = [random.uniform(0,1) for _ in range(self.c_input_nodes)]
                     self.ran_list.insert(0, random.randrange(10))
 
@@ -146,7 +147,7 @@ class cocktailapp:
 
                     #all_values[0] ist target label for this record
                     self.targets[int(self.all_values_converted[0])] = 0.99
-                    self.n.train(self.inputs, self.targets)
+                    #self.n.train(self.inputs, self.targets)
             pass
 
         else:
@@ -271,6 +272,12 @@ def sortingdata(data, val_time, scale_temperature, scale_humidity, scale_alcohol
     # Weigth of the input params defined by user
     # -> dynamic changing of the length of return_values / input_nodes
     ################################
+
+    #to provid a solution if emotion data is empty
+    data = bytearray(data)
+
+    if len(data) == 5:
+        data.extend([1,2,3,4,5,6,0,1,2,3,4,5,6])
 
     #converting the input data to a value between 0.01 and 1
     temp_data = ((data[1]/ 255.0) * 0.99) + 0.01

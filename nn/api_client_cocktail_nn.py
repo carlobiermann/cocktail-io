@@ -34,10 +34,6 @@ class nnclient:
         self.value_temp = val_temp
         self.values_emotions = values_emotions
         self.message = [0,1,2,3,4]
-
-        #if emotion cant be detected
-        if self.values_emotions = []:
-            values_emotions = [0,1,2,3,4,5,6]
         
         # OLD - if nn need to convert#
         # ##############################################
@@ -157,6 +153,7 @@ class nnclient:
             #if ((self.message in self.data) == False):
              #   raise Exception("cant progress these trainingsdata - user cant choose these cocktail")
             #else:
+            
             #convert to byte array
             self.choosencocktail_list = [0 , 0]
 
@@ -194,18 +191,18 @@ class nnclient:
                 self.sock.close()   
  
 
-ran_floats = [random.randrange(6) for _ in range(50)]
-temp_temperature = random.randrange(255)
-print("Random Temperature:", temp_temperature)
-temp_hum = random.randrange(255)
-print("Random Humidity", temp_hum)
-temp_alc = random.randrange(255)
-print("Random Alcohol", temp_alc)
-temp_dist = random.randrange(255)
-print("Random Distance", temp_dist)
+# ran_floats = [random.randrange(6) for _ in range(50)]
+# temp_temperature = random.randrange(255)
+# print("Random Temperature:", temp_temperature)
+# temp_hum = random.randrange(255)
+# print("Random Humidity", temp_hum)
+# temp_alc = random.randrange(255)
+# print("Random Alcohol", temp_alc)
+# temp_dist = random.randrange(255)
+# print("Random Distance", temp_dist)
 
-client = nnclient("localhost", 10000)
-data_query = client.formatdata(temp_temperature, temp_hum, temp_alc, temp_dist, ran_floats)
-nnvalues = client.senddata(data_query, "query", 1024)
-time.sleep(2)
-client.senddata(nnvalues[random.randrange(3)], "training", 1024)
+# client = nnclient("localhost", 10000)
+# data_query = client.formatdata(temp_temperature, temp_hum, temp_alc, temp_dist, ran_floats)
+# nnvalues = client.senddata(data_query, "query", 1024)
+# time.sleep(2)
+# client.senddata(nnvalues[random.randrange(3)], "training", 1024)
