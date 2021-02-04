@@ -4,7 +4,7 @@
 ##########################################################
 
 ## Define the weights / scaling of input Data in numeric parameters ##
-scale_hidden_nodes_in_percent = 20
+scale_hidden_nodes_in_percent = 30
 
 scale_temperature = 10
 scale_humidity = 10
@@ -13,7 +13,7 @@ scale_distance = 20
 scale_emotions = 30
 scale_time = 5
 
-learning_rate  = 0.2
+learning_rate  = 0.7
 training_epoch = 1
 debug_mode = 0
 

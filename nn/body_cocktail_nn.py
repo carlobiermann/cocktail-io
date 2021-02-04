@@ -24,6 +24,8 @@ class neuralNetwork:
         #self.who = (np.random.rand(self.hnodes,self.onodes) - 0.5) #- easy, but not normal distribution in dependency of number of nodes
         self.wih = np.random.normal(0.0, pow(self.inodes, -0.5), (self.hnodes, self.inodes))
         self.who = np.random.normal(0.0, pow(self.hnodes, -0.5), (self.onodes, self.hnodes))
+        self.wih = np.zeros(self.wih.shape) 
+        self.who = np.zeros(self.who.shape)
 
         #sigmoid function called "activation function" in NN-context
         self.activation_function = lambda x: scipy.special.expit(x)
