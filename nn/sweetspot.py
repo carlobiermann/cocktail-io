@@ -10,9 +10,9 @@ import subprocess
 
 #list format
 #scale_temperature, scale_humidity, scale_alcohol, scale_distance, scale_emotions, scale_time, scale_hidden_nodes_in_percent, learning_rate, training_epoch, path_to_debugdata, debug_mode, serverip, port
-Net = "Net 17/4/10 LR 0.25, Highest"
+Net = "Net 17/4/10 LR 0.25, Highest, without Time"
 port = 10000
-inrange = 3000
+inrange = 1000
 
 # list1 = [1,1,1,1,1,1,100,0.1,1,"",0,"localhost",port]
 
@@ -54,7 +54,7 @@ def clientfirst(port, net):
         time.sleep(0.1)
         client1.senddata(temp_choose, "training", 1024)
 
-        nnvalues_short = nnvalues[:2]
+        nnvalues_short = nnvalues[:3]
 
         if 0 in nnvalues_short:
             count_0 = count_0 +1

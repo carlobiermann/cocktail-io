@@ -58,8 +58,8 @@ class cocktailapp:
         #computing params for input/hidden/outputnodes
         self.c_input_nodes = ((self.scale_temp*1)+(self.scale_hum*1)+(self.scale_alc*1)+(self.scale_dist*1)+(self.scale_emo*7)+(self.scale_time*6))
         self.c_hidden_nodes = int(self.c_input_nodes*(self.scale_hidden/100))
-        #if self.c_hidden_nodes < 10:
-        #    self.c_hidden_nodes = 10 
+        if self.c_hidden_nodes < 4:
+            self.c_hidden_nodes = 4
         self.c_output_nodes = 10
 
         #setting up data container for these type of net

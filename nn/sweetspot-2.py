@@ -10,9 +10,9 @@ import subprocess
 
 #list format
 #scale_temperature, scale_humidity, scale_alcohol, scale_distance, scale_emotions, scale_time, scale_hidden_nodes_in_percent, learning_rate, training_epoch, path_to_debugdata, debug_mode, serverip, port
-Net = "Net 17/4/10 LR 0.25, Lowest"
+Net = "Net 17/4/10 LR 0.25, Lowest, whitout Time"
 port = 10200
-inrange = 3000
+inrange = 1000
 
 # list1 = [1,1,1,1,1,1,100,0.1,1,"",0,"localhost",port]
 
