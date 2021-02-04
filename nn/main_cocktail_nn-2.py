@@ -20,10 +20,10 @@ debug_mode = 0
 path_to_debugdata = "" #only needed for debugging
 
 overfitting_protect = 1
-overfitting_mode = "highest" # highest value stay or lowest value stay or middle value stay
+overfitting_mode = "lowest" # highest value stay or lowest value stay
 
 serverip = "localhost"
-port = 10000
+port = 10200
 
 ##########################################################
 
@@ -103,9 +103,9 @@ class cocktailapp:
                 f.close()
 
             except FileNotFoundError:
-                print("No trainingdata found. Generate new file with first entry...")
+                print("No trainingdata found. Generate random new one...")
 
-                for x in range(1):
+                for x in range(10):
                     self.ran_list_param = 1
                     self.ran_list = [random.uniform(0,1) for _ in range(self.c_input_nodes)]
                     self.ran_list.insert(0, random.randrange(10))
@@ -150,7 +150,7 @@ class cocktailapp:
 
                     #all_values[0] ist target label for this record
                     self.targets[int(self.all_values_converted[0])] = 0.99
-                    self.n.train(self.inputs, self.targets)
+                    #self.n.train(self.inputs, self.targets)
             pass
 
         else:
@@ -188,7 +188,7 @@ class cocktailapp:
         self.time_list[5] = (self.time_list_unconverted[5] / 6 * 0.99) + 0.01 #6 + 1 days -> 0!
 
         return self.time_list
-    
+
     #train neuronal net from input
     def retrain(self, data, mode):
         self.data_from_client = data
@@ -343,33 +343,22 @@ def overfitting_protection(most_signifikant_cocktails, most_signifikant_cocktail
     #building up if to check if this is the same, if so, please change the highest one to the next highest and so on
     if len(samevalues) == 3:
         if overfitting_mode == "highest":
-            popmodelowfirst = 1
-            popmodelowsecond = 1
-            popmodehighfirst = 4
-            popmodehighsecond = 4
+            popmodelow = 1
+            popmodehigh = 4
 
         elif overfitting_mode == "lowest":
-            popmodelowfirst = 0
-            popmodelowsecond = 0
-            popmodehighfirst = 3
-            popmodehighsecond = 3
-
-        elif overfitting_mode == "middle":
-            popmodelowfirst = 0
-            popmodehighfirst = 4
-            popmodelowsecond = 1
-            popmodehighsecond = 4
-
+            popmodelow = 0
+            popmodehigh = 3
 
         else:
             raise Exception("false Overfitting Mode. Typo?")
         
         most_signifikant_cocktails_overfitted = most_signifikant_cocktails
 
-        most_signifikant_cocktails_overfitted.pop(popmodelowfirst)
-        most_signifikant_cocktails_overfitted.pop(popmodelowsecond)
-        most_signifikant_cocktails_overfitted.pop(popmodehighfirst)
-        most_signifikant_cocktails_overfitted.pop(popmodehighsecond)  
+        most_signifikant_cocktails_overfitted.pop(popmodelow)
+        most_signifikant_cocktails_overfitted.pop(popmodelow)
+        most_signifikant_cocktails_overfitted.pop(popmodehigh)
+        most_signifikant_cocktails_overfitted.pop(popmodehigh)  
 
         return most_signifikant_cocktails_overfitted  
 

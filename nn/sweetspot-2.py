@@ -10,14 +10,14 @@ import subprocess
 
 #list format
 #scale_temperature, scale_humidity, scale_alcohol, scale_distance, scale_emotions, scale_time, scale_hidden_nodes_in_percent, learning_rate, training_epoch, path_to_debugdata, debug_mode, serverip, port
-Net = "Net 2"
+Net = "Net 17/4/10 LR 0.25, Lowest"
 port = 10200
-inrange = 100
+inrange = 3000
 
-list1 = [10,10,10,10,10,10,20,0.2,1,"",0,"localhost",port]
+# list1 = [1,1,1,1,1,1,100,0.1,1,"",0,"localhost",port]
 
-def nn1():    
-    nn1 = cocktail_nn.main(list1[0],list1[1],list1[2],list1[3],list1[4],list1[5],list1[6],list1[7],list1[8],list1[9],list1[10],list1[11],list1[12])
+# def nn1():    
+    #nn1 = cocktail_nn.main(list1[0],list1[1],list1[2],list1[3],list1[4],list1[5],list1[6],list1[7],list1[8],list1[9],list1[10],list1[11],list1[12])
 
 def clientfirst(port, net):
 
@@ -170,12 +170,12 @@ def clientfirst(port, net):
     print("1-8:", (count_8/inrange))
     print("1-9:", (count_9/inrange))
 
-t1 = Thread(target=nn1)
-t1.start()
-time.sleep(1)
-t01 = Thread(target=clientfirst, args=(port, Net))
-t01.start()
-
+# t1 = Thread(target=nn1)
+# t1.start()
+# time.sleep(1)
+# t01 = Thread(target=clientfirst, args=(port, Net))
+# t01.start()
+clientfirst(port, Net)
     
 
 
