@@ -15,10 +15,11 @@
 #define jaegerPin 4
 #define energyPin 3
 #define bluePin 2
+#define idlePin 10
 
 DHT dht(DHT_PIN, DHTTYPE);
 
-//Ultrasonic Sensor
+//Ultrasound Sensor
 const int trigPin = 12;
 const int echoPin = 11;
 
@@ -47,12 +48,10 @@ byte data[5];
 
 int drinkChoice = 0;
 
-//define variables
-
 int amountOne = 0;
 int amountTwo = 0;
-char ingredientOne;
-char ingredientTwo;
+int ingredientOne;
+int ingredientTwo;
 
 void setup() 
 {
@@ -82,8 +81,7 @@ void setup()
 void loop()
 {
   // SENSOR MESSROUTINE
-  if (startMessung == true)
-  {
+  if (startMessung == true) {
     alkVolt = 0;
     alkVoltMax = 0;
   
@@ -103,14 +101,10 @@ void loop()
     data[4] = 0;
 
     // MESSUNG FÜR 10 SEKUNDEN
-    for (int i = 0; i <= 9; i++)
-    {
-    
+    for (int i = 0; i <= 9; i++) {
       alkVolt = readAlk();
-
       // nur der maximale Alkohol-Wert wird übergeben
-      if (alkVolt>alkVoltMax)
-      {
+      if (alkVolt>alkVoltMax) {
         alkVoltMax=alkVolt;
       }
 
@@ -118,7 +112,6 @@ void loop()
       distance = distance + readUltrasonic();
       temp = temp + dht.readTemperature();
       hum = hum + dht.readHumidity();
-
 
       Serial.print("Distance:");
       Serial.println(distance);
@@ -162,8 +155,7 @@ void loop()
     humMidBit = (humMid/100) * 255; 
     
    //Abstandsmessung wird nach einigen 50-100cm fehlerhaft(zu große Werte, über 20m) deswegen skalieren auf Max Wert
-   if (distanceMidBit > 255)
-   {
+   if (distanceMidBit > 255) {
     distanceMidBit = 255; 
    }
    
@@ -188,8 +180,7 @@ void loop()
     startMessung = false;   
   }
   
-  if (startValves == true) 
-  {
+  if (startValves == true) {    
     Serial.print("Ausgewählter Drink:");
     Serial.println(drinkChoice);
 
@@ -198,57 +189,122 @@ void loop()
       
       case 0:
         Serial.println("Sex on the Beach ;)");
-        getin(vodkaPin, 50, ojuicePin, 100);
-        getin(cranberryPin, 100, 0, 0);
+        digitalWrite(vodkaPin, HIGH);
+        digitalWrite(ojuicePin, HIGH);
+        digitalWrite(cranberryPin, HIGH);
+        delay(25000);
+        digitalWrite(vodkaPin, LOW);
+        delay(25000);
+        digitalWrite(ojuicePin, LOW);
+        digitalWrite(cranberryPin, LOW);
+        break;
      
       case 1:
         Serial.println("Gin Tonic");
-        getin(ginPin, 50, tonicPin, 150);
+        digitalWrite(ginPin, HIGH);
+        digitalWrite(tonicPin, HIGH);
+        delay(25000);
+        digitalWrite(ginPin, LOW);
+        delay(50000);
+        digitalWrite(tonicPin, LOW);
+        break;
 
       case 2:
         Serial.println("Blue Lagoon");
-        getin(vodkaPin, 50, bluePin, 50);
-        getin(ojuicePin, 150, 0, 0);
-        
+        digitalWrite(vodkaPin, HIGH);
+        digitalWrite(bluePin, HIGH);
+        digitalWrite(ojuicePin, HIGH);
+        delay(25000);
+        digitalWrite(vodkaPin, LOW);
+        digitalWrite(bluePin, LOW);
+        delay(50000);
+        digitalWrite(ojuicePin, LOW);
+        break;
+
       case 3:
         Serial.println("Flying Hirsch");
-        getin(jaegerPin, 60, energyPin, 190);
+        digitalWrite(jaegerPin, HIGH);
+        digitalWrite(energyPin, HIGH);
+        delay(30000);
+        digitalWrite(jaegerPin, LOW);
+        delay(65000);
+        digitalWrite(energyPin, LOW);
+        break;
 
       case 4:
-        Serial.println("Vodka E");
-        getin(vodkaPin, 60, energyPin, 190);
+        Serial.println("Vodka E");                
+        digitalWrite(vodkaPin, HIGH);
+        digitalWrite(energyPin, HIGH);
+        delay(30000);
+        digitalWrite(vodkaPin, LOW);
+        delay(65000);
+        digitalWrite(energyPin, LOW);
+        break;
         
       case 5:
         Serial.println("HemingWay");
-        getin(ginPin, 50, ojuicePin, 100);
-        getin(cranberryPin, 100, 0, 0);
+        digitalWrite(ginPin, HIGH);
+        digitalWrite(ojuicePin, HIGH);
+        digitalWrite(cranberryPin, HIGH);
+        delay(25000);
+        digitalWrite(ginPin, LOW);
+        delay(50000);
+        digitalWrite(ojuicePin, LOW);
+        digitalWrite(cranberryPin, LOW);
+        break;
 
       case 6: 
         Serial.println("Blue Gin Tonic");
-        getin(ginPin, 50, tonicPin, 150);
-        getin(bluePin, 30, 0, 0);
+        digitalWrite(ginPin, HIGH);
+        digitalWrite(tonicPin, HIGH);
+        digitalWrite(bluePin, HIGH);
+        delay(15000);
+        digitalWrite(bluePin, LOW);
+        delay(10000);
+        digitalWrite(ginPin, LOW);
+        delay(50000);
+        digitalWrite(tonicPin, LOW);
+        break;
 
       case 7:
         Serial.println("Strong Red");
-        getin(vodkaPin, 30, ginPin, 30);
-        getin(cranberryPin, 140, 0, 0);
+        digitalWrite(vodkaPin, HIGH);
+        digitalWrite(ginPin, HIGH);
+        digitalWrite(cranberryPin, HIGH);
+        delay(15000);
+        digitalWrite(vodkaPin, LOW);
+        digitalWrite(ginPin, LOW);
+        delay(55000);
+        digitalWrite(cranberryPin, LOW);
+        break;
 
       case 8:
         Serial.println("No Sex on the Beach");
-        getin(ojuicePin, 150, cranberryPin, 100);
-
+        digitalWrite(ojuicePin, HIGH);
+        digitalWrite(cranberryPin, HIGH);
+        delay(50000);
+        digitalWrite(cranberryPin, LOW);
+        delay(25000);
+        digitalWrite(ojuicePin, LOW);
+        break;
+        
       case 9:
         Serial.println("Blue Lagoon alkfree");
-        getin(bluePin, 50, ojuicePin, 150);
-    
+        digitalWrite(bluePin, HIGH);
+        digitalWrite(ojuicePin, HIGH);
+        delay(25000);
+        digitalWrite(bluePin, LOW);
+        delay(50000);
+        digitalWrite(ojuicePin, LOW);  
+        break;
     }        
     startValves = false;
   }
 }
 
 
-float readAlk()
-{
+float readAlk() {
+  
     float sensorValue, sensorVolt;
 
     sensorValue = analogRead(PIN_ANALOG_OUT);
@@ -257,8 +313,8 @@ float readAlk()
     return sensorVolt; 
 }
 
-int readUltrasonic()
-{
+int readUltrasonic() {
+  
   long duration;
   int distance;
   
@@ -279,7 +335,6 @@ int readUltrasonic()
 }
 
 // I2C FUNCTIONS
-
 void receiveEvent(int howMany) {
     int rxData = Wire.read();
     
@@ -301,45 +356,54 @@ void sendData() {
     Serial.println(data[4]);
 }
 
-void getin(char ingredientOne, int amountOne, char ingredientTwo, int amountTwo) {
+/*
+// DRINK MIXING ROUTING
+void mixingDrink(int ingredientOne, int amountOne, int ingredientTwo, int amountTwo) {
   //function to set ml to the glass
   //if u need one ingredient, pls set the ingredientTwo and amountTwo to zero
-
   int delayone = 0; 
   int delaytwo = 0;
   
   //how much ml troughput per minute CHANGE HERE!
-  int measurement_time = 100; //time ml in seconds
-  int measurment_ml = 10; //ml in time
-  int mlins = (measurment_ml/measurement_time);
+  int measurement_time = 90; //time ml in seconds
+  int measurement_ml = 200; //ml in time
+  
+  int mlins = (measurement_ml/measurement_time);
   int mlinms = (mlins/1000);
   
-  if (ingredientTwo != 0 && amountTwo != 0) {
-    //two ingredients at the same time
-    if (amountOne < amountTwo) {
-      delayone = amountOne;
-      delaytwo = amountTwo-amountOne;
-    }
-    else if (amountOne > amountTwo) {
-      delayone = amountTwo;
-      delaytwo = amountOne-amountTwo;
-    }
-    else if (amountOne == amountTwo) {
-      delayone = amountOne;
-      delaytwo = 0;
-    } else {
-    //only one ingredient
-    digitalWrite(ingredientOne, HIGH);
-    delay(amountOne/mlinms);
-    digitalWrite(ingredientOne, LOW);
-     }
-     
+  if (amountOne < amountTwo) {
+    delayone = amountOne;
+    delaytwo = amountTwo-amountOne;
+
     digitalWrite(ingredientOne, HIGH);
     digitalWrite(ingredientTwo, HIGH);
-    delay(delayone/mlinms);
+    // delay(delayone/mlinms);
+    delay(25000);
     digitalWrite(ingredientOne, LOW);
-    delay(delaytwo/mlinms);
+    // delay(delaytwo/mlinms);
     digitalWrite(ingredientTwo, LOW);
-        
-  }
-}
+      
+    } else if (amountOne > amountTwo) {
+      delayone = amountTwo;
+      delaytwo = amountOne-amountTwo;
+      
+      digitalWrite(ingredientOne, HIGH);
+      digitalWrite(ingredientTwo, HIGH);
+      //delay(delayone/mlinms);
+      delay(25000);
+      digitalWrite(ingredientTwo, LOW);
+      // delay(delaytwo/mlinms);
+      digitalWrite(ingredientOne, LOW);
+            
+    } else if (amountOne == amountTwo) {
+      delayone = amountOne;
+      delaytwo = 0;
+      digitalWrite(ingredientOne, HIGH);
+      digitalWrite(ingredientTwo, HIGH);
+      //delay(delayone/mlinms);
+      delay(25000);
+      digitalWrite(ingredientTwo, LOW);
+      // delay(delaytwo/mlinms);
+      digitalWrite(ingredientOne, LOW);
+    }  
+} */
