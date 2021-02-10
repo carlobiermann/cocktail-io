@@ -340,6 +340,7 @@ void receiveEvent(int howMany) {
     
     if (rxData == 11) {
       startMessung = true; 
+
     } else if (rxData < 11) {
       startValves = true;
       drinkChoice = rxData; 
