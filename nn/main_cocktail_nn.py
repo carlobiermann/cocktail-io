@@ -4,7 +4,7 @@
 ##########################################################
 
 ## Define the weights / scaling of input Data in numeric parameters ##
-scale_hidden_nodes_in_percent = 25
+scale_hidden_nodes_in_percent = 75
 
 scale_temperature = 1
 scale_humidity = 1
@@ -15,14 +15,13 @@ scale_time = 1
 
 learning_rate  = 0.25
 training_epoch = 1
-debug_mode = 0
-
-path_to_debugdata = "" #only needed for debugging
 
 overfitting_protect = 1
 overfitting_mode = "highest" # highest value stay or lowest value stay or middle value stay
+random_mode = 0 #if 1, add random input nodes to the NN, to provide better solutions
+random_nodes = 500
 
-serverip = "localhost"
+serverip = "192.168.178.29"
 port = 10000
 
 ##########################################################
@@ -42,7 +41,7 @@ import random
 class cocktailapp:
     
     #init
-    def __init__(self, scale_temperature, scale_humidity, scale_alcohol, scale_distance, scale_emotions, scale_time, scale_hidden_nodes_in_percent, learning_rate, training_epoch, path_to_debugdata, debug_mode):
+    def __init__(self, scale_temperature, scale_humidity, scale_alcohol, scale_distance, scale_emotions, scale_time, scale_hidden_nodes_in_percent, learning_rate, training_epoch, random_mode, random_nodes):
          
         print("Starting up Cocktailmaker Engine by Horizontal Joghurtz...")
 
@@ -54,9 +53,13 @@ class cocktailapp:
         self.scale_emo = scale_emotions
         self.scale_time = scale_time
         self.scale_hidden = scale_hidden_nodes_in_percent
+        self.ran_mode = random_mode
+        self.random_nodes = random_nodes
 
         #computing params for input/hidden/outputnodes
         self.c_input_nodes = ((self.scale_temp*1)+(self.scale_hum*1)+(self.scale_alc*1)+(self.scale_dist*1)+(self.scale_emo*7)+(self.scale_time*6))
+        if self.ran_mode == 1:
+            self.c_input_nodes = self.c_input_nodes + self.random_nodes
         self.c_hidden_nodes = int(self.c_input_nodes*(self.scale_hidden/100))
         if self.c_hidden_nodes < 4:
             self.c_hidden_nodes = 4 
@@ -69,12 +72,10 @@ class cocktailapp:
 
         #other variables
         self.script_dir = os.path.dirname(__file__)
-        self.path_to_debugdata = os.path.join(self.script_dir, path_to_debugdata)
         self.path_to_wih = os.path.join(self.script_dir, self.string_whi)
         self.path_to_who = os.path.join(self.script_dir, self.string_who)
         self.path_to_training_dir = os.path.join(self.script_dir, self.string_training_data)
         self.training_epoch = training_epoch
-        self.debug_mode = debug_mode
 
         #installing new nn   
         self.n = nn.neuralNetwork(self.c_input_nodes, self.c_hidden_nodes, self.c_output_nodes, learning_rate, self.path_to_wih, self.path_to_who)
@@ -84,6 +85,9 @@ class cocktailapp:
         print("Input Nodes:", self.c_input_nodes)
         print("Hidden Nodes:", self.c_hidden_nodes)
         print("Output Nodes:", self.c_output_nodes)
+        
+        #for getting nodes in other modules
+        input_nodes_nn = self.c_input_nodes
 
     #train new nn with data
     def firsttrain(self):
@@ -98,6 +102,13 @@ class cocktailapp:
         except FileNotFoundError:
             #check if training data already there
             print("No trained net matching the params of nodes found. Looking for trainingdata...")
+            
+            self.training_data_name = input("Do u want to choose specific trainingdata? [Y/N]")
+
+            if self.training_data_name == "Y" or self.training_data_name == "y":
+                own_training_data = input("Please name the trainingdata-csv-file:")
+                self.path_to_training_dir = os.path.join(self.script_dir, own_training_data)
+
             try:
                 f = open(self.path_to_training_dir, "r")
                 f.close()
@@ -193,36 +204,31 @@ class cocktailapp:
     def retrain(self, data, mode):
         self.data_from_client = data
         self.trainings_mode = mode
-        
-        #check for debug mode
-        if self.debug_mode == 0:
-            
-            #park the sensor data
-            if (self.trainings_mode == "sensor_data"):
-                self.parking_sensor_data = self.data_from_client
 
-            #if there is a trainingvalue
-            elif (self.trainings_mode == "user_input"):
-                self.parking_user_input = self.data_from_client[1]
-                self.parking_sensor_data.insert(0, self.parking_user_input)
+        #park the sensor data
+        if (self.trainings_mode == "sensor_data"):
+            self.parking_sensor_data = self.data_from_client
 
-                #write to training csv file
-                with open(self.string_training_data, 'a', newline='') as csvsavefile:
-                    wr = csv.writer(csvsavefile, quoting=csv.QUOTE_ALL)
-                    wr.writerow(self.parking_sensor_data)
+        #if there is a trainingvalue
+        elif (self.trainings_mode == "user_input"):
+            self.parking_user_input = self.data_from_client[1]
+            self.parking_sensor_data.insert(0, self.parking_user_input)
 
-                #generate target list for n.train
-                self.generated_target_list_from_client = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
-                self.generated_target_list_from_client.insert(self.parking_user_input, 0.99)
+            #write to training csv file
+            with open(self.string_training_data, 'a', newline='') as csvsavefile:
+                wr = csv.writer(csvsavefile, quoting=csv.QUOTE_ALL)
+                wr.writerow(self.parking_sensor_data)
 
-                #train the nn 
-                self.parking_sensor_data.pop(0)
-                self.n.train(self.parking_sensor_data,self.generated_target_list_from_client)
+            #generate target list for n.train
+            self.generated_target_list_from_client = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+            self.generated_target_list_from_client.insert(self.parking_user_input, 0.99)
 
-            self.n.saveweights()
-            pass
-        else:
-            pass
+            #train the nn 
+            self.parking_sensor_data.pop(0)
+            self.n.train(self.parking_sensor_data,self.generated_target_list_from_client)
+
+        self.n.saveweights()
+        pass
     
     #query for the right cocktail
     def query(self, input_list):
@@ -232,20 +238,6 @@ class cocktailapp:
         self.outputs_list = self.n.query(input_list)
         
         return self.outputs_list
-    
-    #debug and testing function
-    def chkdebug(self):
-        self.test_data_file = open(self.path_to_debugdata, "r")
-        self.test_data_list = self.test_data_file.readlines()
-        self.test_data_file.close()
-
-        self.all_values = self.test_data_list[3].split(",")
-        print(self.all_values[0])
-        self.all_values_transported = (np.asfarray(self.all_values[1:]) / 255.0 * 0.99) + 0.01
-        self.a = self.n.query(self.all_values_transported)
-        print(self.a)
-
-        self.n.saveweights()
 
 def startingsocket(serverip, port):
     # Create a TCP/IP socket
@@ -262,7 +254,7 @@ def startingsocket(serverip, port):
     # Listen for incoming connections
     sock.listen(1)
 
-def sortingdata(data, val_time, scale_temperature, scale_humidity, scale_alcohol, scale_distance, scale_emotions, scale_time):
+def sortingdata(data, val_time, scale_temperature, scale_humidity, scale_alcohol, scale_distance, scale_emotions, scale_time, random_mode, random_nodes):
     ################################
     # input format for data:
     # input_array[0] = 0 for syntax check
@@ -320,6 +312,10 @@ def sortingdata(data, val_time, scale_temperature, scale_humidity, scale_alcohol
 
     for x in range(1,(scale_time+1),1):
         return_values.extend(val_time)
+
+    if random_mode == 1:
+        random_list=[(random.uniform(0.1, 1)) for _ in range(random_nodes)]
+        return_values.extend(random_list)
 
     # return_values : list with 1 element for every input_node
     return return_values
@@ -383,92 +379,95 @@ def overfitting_protection(most_signifikant_cocktails, most_signifikant_cocktail
 
 
 ##########################################################
-app = cocktailapp(scale_temperature, scale_humidity, scale_alcohol, scale_distance, scale_emotions, scale_time, scale_hidden_nodes_in_percent, learning_rate, training_epoch, path_to_debugdata, debug_mode)
-startingsocket(serverip, port)
-app.firsttrain()
-#app.chkdebug()
 
-most_signifikant_cocktails_old = [0,0,0,0,0,0]
+if __name__ == "__main__":
 
+    app = cocktailapp(scale_temperature, scale_humidity, scale_alcohol, scale_distance, scale_emotions, scale_time, scale_hidden_nodes_in_percent, learning_rate, training_epoch, random_mode, random_nodes)
+    startingsocket(serverip, port)
+    app.firsttrain()
 
+    print("Overfitting-Protection:", overfitting_protect, ", ", overfitting_mode)
+    print("Random-Input-Nodes:", random_mode, ", ", random_nodes, " Nodes")
 
-try:
-    while True:
-        # Wait for a connection
-        print('waiting for a connection')
-        connection, client_address = sock.accept()
-        try:
-            print('connection from', client_address)
-            # Receive the data in small chunks and retransmit it
-            while True:
-                data = connection.recv(1024)
-                print(list(data))
-                
-                ##############
-                #main routine#
-                ##############
-                
-                if data:
+    most_signifikant_cocktails_old = [0,0,0,0,0,0]
+
+    try:
+        while True:
+            # Wait for a connection
+            print('waiting for a connection')
+            connection, client_address = sock.accept()
+            try:
+                print('connection from', client_address)
+                # Receive the data in small chunks and retransmit it
+                while True:
+                    data = connection.recv(1024)
+                    print(list(data))
                     
-                    #which data?
-                    datatype = checkiftraining(data)
-
-                    if (datatype == "query"):
-
-                        val_time = app.getdate() 
-                        input_variables_to_nn = sortingdata(data, val_time, scale_temperature, scale_humidity, scale_alcohol, scale_distance, scale_emotions, scale_time)
-                        app.retrain(input_variables_to_nn, "sensor_data") 
-                        output_variables_from_nn = app.query(input_variables_to_nn)
-                        print("sending answer....") 
-                        print(output_variables_from_nn)  
-                        #answer = ("hello!".encode("utf-8"))
-
-                        #generating a return vector
-                        most_signifikant_cocktails = [0,0,0,0,0,0,0,0,0,0]
-
-                        #get the three biggest values from nn
-                        for x in range(5):
-                            value_search_temp = output_variables_from_nn.max()
-                            pos_search_temp = output_variables_from_nn.argmax()
-                            output_variables_from_nn[pos_search_temp] = 0
-                            most_signifikant_cocktails[x] = pos_search_temp
-                            most_signifikant_cocktails[x+5] =  value_search_temp
-
-                        if overfitting_protect == 1:
-                            most_signifikant_cocktails = overfitting_protection(most_signifikant_cocktails, most_signifikant_cocktails_old, output_variables_from_nn, overfitting_mode)
-                        elif overfitting_protect ==0:
-                            most_signifikant_cocktails.pop(3)
-                            most_signifikant_cocktails.pop(3)
-                            most_signifikant_cocktails.pop(6)
-                            most_signifikant_cocktails.pop(6)
-                        else:
-                            raise Exception("No Overfitting-Prevent-Mode selected.")
-
-                        print(most_signifikant_cocktails)
-                        most_signifikant_cocktails_old = most_signifikant_cocktails
-
-                        answer = struct.pack( "<6f",*most_signifikant_cocktails)
-
-                        print(" ")
-                        print(list(answer))
-                        connection.sendall(answer)
-
-                    elif (datatype == "training"):
-                        #train the nn
-                        print(data)
-                        app.retrain(data, "user_input")
-                        connection.sendall(b"thank u")
-                        pass
+                    ##############
+                    #main routine#
+                    ##############
                     
-                else:
-                    break
+                    if data:
+                        
+                        #which data?
+                        datatype = checkiftraining(data)
 
-        finally:
-            # Clean up the connection
-            connection.close()
-            print("close.")
+                        if (datatype == "query"):
 
-except KeyboardInterrupt:
-    sock.close()
-    print("Ctrl + C: terminated in front of keyboard interrupt.")
-    pass
+                            val_time = app.getdate() 
+                            input_variables_to_nn = sortingdata(data, val_time, scale_temperature, scale_humidity, scale_alcohol, scale_distance, scale_emotions, scale_time, random_mode, random_nodes)
+                            app.retrain(input_variables_to_nn, "sensor_data") 
+                            output_variables_from_nn = app.query(input_variables_to_nn)
+                            print("sending answer....") 
+                            print(output_variables_from_nn)  
+                            #answer = ("hello!".encode("utf-8"))
+
+                            #generating a return vector
+                            most_signifikant_cocktails = [0,0,0,0,0,0,0,0,0,0]
+
+                            #get the three biggest values from nn
+                            for x in range(5):
+                                value_search_temp = output_variables_from_nn.max()
+                                pos_search_temp = output_variables_from_nn.argmax()
+                                output_variables_from_nn[pos_search_temp] = 0
+                                most_signifikant_cocktails[x] = pos_search_temp
+                                most_signifikant_cocktails[x+5] =  value_search_temp
+
+                            if overfitting_protect == 1:
+                                most_signifikant_cocktails = overfitting_protection(most_signifikant_cocktails, most_signifikant_cocktails_old, output_variables_from_nn, overfitting_mode)
+                            elif overfitting_protect ==0:
+                                most_signifikant_cocktails.pop(3)
+                                most_signifikant_cocktails.pop(3)
+                                most_signifikant_cocktails.pop(6)
+                                most_signifikant_cocktails.pop(6)
+                            else:
+                                raise Exception("No Overfitting-Prevent-Mode selected.")
+
+                            print(most_signifikant_cocktails)
+                            most_signifikant_cocktails_old = most_signifikant_cocktails
+
+                            answer = struct.pack( "<6f",*most_signifikant_cocktails)
+
+                            print(" ")
+                            print(list(answer))
+                            connection.sendall(answer)
+
+                        elif (datatype == "training"):
+                            #train the nn
+                            print(data)
+                            #app.retrain(data, "user_input")
+                            connection.sendall(b"thank u")
+                            pass
+                        
+                    else:
+                        break
+
+            finally:
+                # Clean up the connection
+                connection.close()
+                print("close.")
+
+    except KeyboardInterrupt:
+        sock.close()
+        print("Ctrl + C: terminated in front of keyboard interrupt.")
+        pass

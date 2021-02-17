@@ -445,7 +445,7 @@ try:
                     elif (datatype == "training"):
                         #train the nn
                         print(data)
-                        app.retrain(data, "user_input")
+                        #app.retrain(data, "user_input")
                         connection.sendall(b"thank u")
                         pass
                     

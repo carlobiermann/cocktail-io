@@ -15,8 +15,6 @@ class nnclient:
     #format the data for sending to nn 
     def formatdata(self, val_temp, val_alc, val_dist, val_hum, values_emotions):
 
-        #TO-DO Verify val_alc format
-
         #############################################
         #
         # scaling params to 8bit in arduino for clear data line
@@ -190,20 +188,20 @@ class nnclient:
                 print('closing socket')
                 self.sock.close()   
  
+if __name__ == "__main__":
+    ran_floats_param = random.randrange(6)
+    ran_floats = [ran_floats_param for _ in range(50)]
+    temp_temperature = random.randrange(255)
+    print("Random Temperature:", temp_temperature)
+    temp_hum = random.randrange(255)
+    print("Random Humidity", temp_hum)
+    temp_alc = random.randrange(255)
+    print("Random Alcohol", temp_alc)
+    temp_dist = random.randrange(255)
+    print("Random Distance", temp_dist)
 
-ran_floats_param = random.randrange(6)
-ran_floats = [ran_floats_param for _ in range(50)]
-temp_temperature = random.randrange(255)
-print("Random Temperature:", temp_temperature)
-temp_hum = random.randrange(255)
-print("Random Humidity", temp_hum)
-temp_alc = random.randrange(255)
-print("Random Alcohol", temp_alc)
-temp_dist = random.randrange(255)
-print("Random Distance", temp_dist)
-
-client = nnclient("localhost", 10000)
-data_query = client.formatdata(temp_temperature, temp_hum, temp_alc, temp_dist, ran_floats)
-nnvalues = client.senddata(data_query, "query", 1024)
-time.sleep(2)
-client.senddata(nnvalues[random.randrange(3)], "training", 1024)
+    client = nnclient("localhost", 10000)
+    data_query = client.formatdata(temp_temperature, temp_hum, temp_alc, temp_dist, ran_floats)
+    nnvalues = client.senddata(data_query, "query", 1024)
+    time.sleep(2)
+    client.senddata(nnvalues[random.randrange(3)], "training", 1024)
