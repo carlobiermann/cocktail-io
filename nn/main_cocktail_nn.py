@@ -4,7 +4,7 @@
 ##########################################################
 
 ## Define the weights / scaling of input Data in numeric parameters ##
-scale_hidden_nodes_in_percent = 75
+scale_hidden_nodes_in_percent = 75 
 
 scale_temperature = 1
 scale_humidity = 1
@@ -13,15 +13,15 @@ scale_distance = 1
 scale_emotions = 1
 scale_time = 1
 
-learning_rate  = 0.25
+learning_rate  = 0.25 
 training_epoch = 1
 
-overfitting_protect = 1
+overfitting_protect = 1 
 overfitting_mode = "highest" # highest value stay or lowest value stay or middle value stay
 random_mode = 0 #if 1, add random input nodes to the NN, to provide better solutions
 random_nodes = 500
 
-serverip = "192.168.178.29"
+serverip = "localhost"
 port = 10000
 
 ##########################################################

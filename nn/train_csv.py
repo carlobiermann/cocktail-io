@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
     val_time = getdate()
 
-    for i in range(1,50):
+    for i in range(1,45):
         generatefile(fall0, 1, training_name, val_time)
         generatefile(fall1, 1, training_name, val_time)
         generatefile(fall2, 1, training_name, val_time)
