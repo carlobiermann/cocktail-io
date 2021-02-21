@@ -8,8 +8,8 @@ address = 0x05
 
 def readSensors():
     # empty data array
-    data = bus.read_i2c_block_data(address, 99, 3);
+    data = bus.read_i2c_block_data(address, 99, 5);
     return data
 
-def sendDrink(drinkChoice):
-    bus.write_byte(address, drinkChoice)
+def sendData(data):
+    bus.write_byte(address, data)

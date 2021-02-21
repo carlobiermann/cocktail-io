@@ -1,9 +1,10 @@
 import sys
 import emotions
 import arduinoI2C
-# import api_client_cocktail_nn as apiclient
+import api_client_cocktail_nn as apiclient
 import random
 import time
+import helper
 
 
 try: 
@@ -244,23 +245,22 @@ class pageFive(tk.Frame):
         else:
             # arduino alcohol/sensor detection
             global sensorData
-            arduinoI2C.sendDrink(11)
+            arduinoI2C.sendData(11)
             time.sleep(10)
             sensorData = arduinoI2C.readSensors() 
+            sensorData.pop(0)
             print(sensorData)
             self.btn1.place_forget()
             self.btn2.place(relx=0.338, rely=0.688, height=81, width=261)
             self.lbl.configure(text="Messung fertig")
             
             # send all data to NN
-            # client = apiclient.nnclient("192.168.178.28", 10000) # CHANGE TO IP
-            # ran_floats = [random.randrange(6) for _ in range(100)]
-            # temp_temperature = random.randrange(20)+10
-            # print("temp", temp_temperature)
+            client = apiclient.nnclient("192.168.178.29", 10000) # CHANGE TO IP
             
-            #client.formatdata(temp_temperature, sensorData, emoData)
-            # data_query = client.formatdata(20, 12, emoData)
-            # nnvalues = client.senddata(data_query,"query",1024)
+            data_query = client.formatdata(sensorData[2], sensorData[3],sensorData[0], sensorData[1], emoData)
+            global nnvalues
+            nnvalues = client.senddata(data_query,"query",1024)
+            print(nnvalues)
 
         
 
@@ -280,12 +280,12 @@ class pageSix(tk.Frame):
         # and puts them into moods and levels of intoxication as strings
 
         # dummy input from said function
-        Stimmung = "heiter"
-        StimmungText = "Deine Stimmung ist " + Stimmung + "."
+        Stimmung = " "
+        StimmungText = "  " + Stimmung + " "
        
         # dummy input from said function
-        Pegel = "Einer geht noch!"
-        PegelText = "Dein Pegel sagt: '" + Pegel + "'"
+        Pegel = " "
+        PegelText = " " + Pegel + " "
         
         self.lbl1 = tk.Label(master)
         self.lbl1.configure(bg="#212121", fg="#ffffff")
@@ -314,24 +314,25 @@ class pageSix(tk.Frame):
         self.lbl4.configure(text=row4, font=('Arial', 16, "bold"))
        
         # dummy input from neural network
-        auswahlA = "Auswahl A"
-        auswahlB = "Auswahl B"
-        auswahlC = "Auswahl C"
+        
+        self.auswahlA = helper.drinkZuordnung(nnvalues[0])
+        self.auswahlB = helper.drinkZuordnung(nnvalues[1])
+        self.auswahlC = helper.drinkZuordnung(nnvalues[2])
 
         self.btn1 = tk.Button(master)
-        self.btn1.configure(text=auswahlA, font=('Arial', 12, "bold"))
+        self.btn1.configure(text=self.auswahlA, font=('Arial', 12, "bold"))
         self.btn1.configure(bg="#212121", activebackground="#ff6666", fg="#ffffff")
         self.btn1.configure(command=self.drinkA)
         self.btn1.place(relx=0.05, rely=0.625, height=81, width=181)
  
         self.btn2 = tk.Button(master)
-        self.btn2.configure(text=auswahlB, font=('Arial', 12, "bold"))
+        self.btn2.configure(text=self.auswahlB, font=('Arial', 12, "bold"))
         self.btn2.configure(bg="#212121", activebackground="#ff6666", fg="#ffffff")
         self.btn2.configure(command=self.drinkB)
         self.btn2.place(relx=0.388, rely=0.625, height=81, width=181)
 
         self.btn3 = tk.Button(master)
-        self.btn3.configure(text=auswahlC, font=('Arial', 12, "bold"))
+        self.btn3.configure(text=self.auswahlC, font=('Arial', 12, "bold"))
         self.btn3.configure(bg="#212121", activebackground="#ff6666", fg="#ffffff")
         self.btn3.configure(command=self.drinkC)
         self.btn3.place(relx=0.725, rely=0.625, height=81, width=181)
@@ -346,27 +347,36 @@ class pageSix(tk.Frame):
         self.btn2.place_forget()
         self.btn3.place_forget()
         self.btn4.place(relx=0.05, rely=0.625, height=81, width=181)
-        print("Drink A")
+        
+        auswahl = helper.zahlZuordnung(self.auswahlA)
         #SEND TO ARDUINO 
-        arduinoI2C.sendDrink(1)
+        arduinoI2C.sendData(auswahl)
+        client = apiclient.nnclient("192.168.178.29", 10000) # CHANGE TO IP
+        client.senddata(auswahl, "training", 1024)
     
     def drinkB(self): 
         self.btn1.place_forget()
         self.btn2.place_forget()
         self.btn3.place_forget()
         self.btn4.place(relx=0.388, rely=0.625, height=81, width=181)
-        print("Drink B")
+        
+        auswahl = helper.zahlZuordnung(self.auswahlB)
         #SEND TO ARDUINO
-        arduinoI2C.sendDrink(2)
+        arduinoI2C.sendData(auswahl)
+        client = apiclient.nnclient("192.168.178.29", 10000) # CHANGE TO IP
+        client.senddata(auswahl, "training", 1024)
 
     def drinkC(self):
         self.btn1.place_forget()
         self.btn2.place_forget()
         self.btn3.place_forget()
         self.btn4.place(relx=0.725, rely=0.625, height=81, width=181)
-        print("Drink C")
+        
+        auswahl = helper.zahlZuordnung(self.auswahlC)
         #SEND TO ARDUINO
-        arduinoI2C.sendDrink(3)
+        arduinoI2C.sendData(auswahl)
+        client = apiclient.nnclient("192.168.178.29", 10000) # CHANGE TO IP
+        client.senddata(auswahl, "training", 1024)
 
 class pageSeven(tk.Frame):    
     def __init__(self, master):
